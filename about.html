@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>關於展覽 - 藝文中心數位展演</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #f39c12;
+            --soft-gold: #f4d03f;
+            --warm-beige: #f8f6f0;
+            --text-dark: #2c3e50;
+            --text-light: #666;
+            --text-muted: #888;
+            --border-light: #e8e6e3;
+            --shadow-soft: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-medium: 0 8px 30px rgba(0,0,0,0.12);
+            --gradient-warm: linear-gradient(135deg, #f8f6f0 0%, #f4d03f 100%);
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--warm-beige);
+            overflow-x: hidden;
+            line-height: 1.7;
+            color: var(--text-dark);
+            font-size: 16px;
+        }
+
+        /* Header 樣式 */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .logo-en {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.65rem;
+            line-height: 1.1;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
+        .logo-zh {
+            font-size: 0.9rem;
+            line-height: 1.2;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-btn:active {
+            background: var(--warm-beige);
+            transform: scale(0.95);
+        }
+
+        /* 主容器 */
+        .main-container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        /* 頁面標題區域 */
+        .page-header {
+            background: var(--gradient-warm);
+            padding: 3rem 1.2rem 3.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23000" opacity="0.02"/><circle cx="75" cy="75" r="1" fill="%23000" opacity="0.02"/><circle cx="50" cy="10" r="0.5" fill="%23000" opacity="0.03"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 2px;
+        }
+
+        .page-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--text-light);
+            letter-spacing: 3px;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 內容區域 */
+        .content-section {
+            padding: 4rem 1.2rem;
+            background: white;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem 2.5rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--border-light);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent-color), var(--soft-gold), var(--accent-color));
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .section-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-dark);
+            text-align: justify;
+            font-weight: 400;
+        }
+
+        /* 聯絡方式特殊樣式 */
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .contact-item {
+            position: relative;
+            text-align: center;
+            padding: 2.5rem 1.5rem 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-light);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .contact-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-color), var(--soft-gold));
+            transform: translateX(-100%);
+            transition: transform 0.4s ease;
+        }
+
+        .contact-item:hover::before {
+            transform: translateX(0);
+        }
+
+        .contact-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .contact-item:active {
+            transform: translateY(-4px) scale(0.98);
+        }
+
+        .contact-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.2rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--accent-color), var(--soft-gold));
+            border-radius: 50%;
+            color: white;
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.3);
+        }
+
+        .contact-details {
+            margin-top: 1rem;
+        }
+
+        .contact-label {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        .contact-value {
+            color: var(--text-light);
+            font-size: 1rem;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        /* 特殊圖示樣式 */
+        .contact-item:nth-child(1) .contact-icon {
+            background: linear-gradient(135deg, #e2b6b2, #f39c12);
+        }
+
+        .contact-item:nth-child(2) .contact-icon {
+            background: linear-gradient(135deg, #27ae60, #e2d9b2);
+        }
+
+        .contact-item:nth-child(3) .contact-icon {
+            background: linear-gradient(135deg, #3498db, #c1e2b2);
+        }
+
+        .contact-item:nth-child(4) .contact-icon {
+            background: linear-gradient(135deg, #9b59b6, #f39c12);
+        }
+
+        /* 裝飾元素 */
+        .decorative-divider {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .divider-ornament {
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+            position: relative;
+        }
+
+        .divider-ornament::before {
+            content: '✦';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--accent-color);
+            background: white;
+            padding: 0 0.8rem;
+            font-size: 1rem;
+        }
+
+        /* 動畫效果 */
+        .animate-fade {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 側邊選單樣式 */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(320px, 85vw);
+            height: 100%;
+            background: white;
+            z-index: 201;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -4px 0 30px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 1.8rem 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--warm-beige);
+        }
+
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:active {
+            background: rgba(0,0,0,0.05);
+            transform: scale(0.9);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 1.2rem 1.5rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .menu-item:active {
+            background: var(--warm-beige);
+            color: var(--accent-color);
+            transform: translateX(4px);
+        }
+
+        .menu-item.active {
+            background: var(--warm-beige);
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .menu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--accent-color);
+        }
+
+        .menu-icon {
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .menu-text {
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-light);
+            color: var(--text-light);
+            font-size: 0.8rem;
+            text-align: center;
+            background: #fafafa;
+        }
+
+        /* 頁腳 */
+        .page-footer {
+            padding: 2.5rem 1.2rem;
+            text-align: center;
+            background: var(--text-dark);
+            color: white;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+                letter-spacing: 1px;
+            }
+
+            .section-card {
+                padding: 2rem 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.8rem;
+            }
+
+            .contact-item {
+                flex-direction: column;
+                gap: 0.8rem;
+                text-align: center;
+            }
+
+            .contact-icon {
+                align-self: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-header {
+                padding: 2rem 1rem 2.5rem;
+            }
+
+            .content-section {
+                padding: 2.5rem 1rem;
+            }
+
+            .section-card {
+                padding: 1.5rem 1rem;
+            }
+
+            .section-content {
+                font-size: 1rem;
+            }
+
+            .sidebar {
+                width: 90vw;
+            }
+        }
+
+        /* 觸摸優化 */
+        @media (hover: none) and (pointer: coarse) {
+            .section-card:hover {
+                transform: none;
+                box-shadow: var(--shadow-medium);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-en">ARTS & CULTURAL CENTER</div>
+            <div class="logo-zh">藝文中心數位展演</div>
+        </div>
+        <button class="menu-btn" aria-label="開啟選單">⋯</button>
+    </header>
+
+    <div class="main-container">
+        <!-- 頁面標題區域 -->
+        <section class="page-header animate-fade">
+            <h1 class="page-title">關於展覽</h1>
+            <p class="page-subtitle">ABOUT EXHIBITION</p>
+        </section>
+
+        <!-- 內容區域 -->
+        <section class="content-section">
+            <!-- 第一部分：關於展覽 -->
+            <div class="section-card animate-fade">
+                <h2 class="section-title">
+                    <span class="section-number">一</span>
+                    關於展覽
+                </h2>
+                <div class="section-content">
+                    藝文中心數位展演致力於推廣當代藝術創作，透過數位平台讓更多人能欣賞到優秀的藝術作品。本次展覽匯集了多位知名畫家的精選作品，涵蓋不同風格與創作技法。
+                </div>
+            </div>
+
+            <!-- 裝飾分隔線 -->
+            <div class="decorative-divider">
+                <div class="divider-ornament"></div>
+            </div>
+
+            <!-- 第二部分：聯絡方式 -->
+            <div class="section-card animate-fade">
+                <h2 class="section-title">
+                    <span class="section-number">二</span>
+                    聯絡方式
+                </h2>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">📍</div>
+                        <div class="contact-details">
+                            <div class="contact-label">地址</div>
+                            <div class="contact-value">臺北市大安區忠孝東路三段一號
+                                <br>捷運忠孝新生站4號出口</div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">📞</div>
+                        <div class="contact-details">
+                            <div class="contact-label">電話</div>
+                            <div class="contact-value">(02) 1234-5678</div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">✉️</div>
+                        <div class="contact-details">
+                            <div class="contact-label">電子郵件</div>
+                            <div class="contact-value">info@artscenter.tw</div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">🕐</div>
+                        <div class="contact-details">
+                            <div class="contact-label">開放時間</div>
+                            <div class="contact-value">週二至週日 9:00-17:00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 側邊選單 -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">選單</div>
+                <button class="close-btn" id="closeSidebar" aria-label="關閉選單">×</button>
+            </div>
+            <div class="sidebar-content">
+                <button class="menu-item" onclick="goToHome()">
+                    <span class="menu-icon">🏠</span>
+                    <span class="menu-text">主頁</span>
+                </button>
+                <button class="menu-item" onclick="goToContent()">
+                    <span class="menu-icon">🖼️</span>
+                    <span class="menu-text">作品展覽</span>
+                </button>
+                <button class="menu-item active" onclick="goToAbout()">
+                    <span class="menu-icon">ℹ️</span>
+                    <span class="menu-text">關於展覽</span>
+                </button>
+            </div>
+            <div class="sidebar-footer">
+                藝文中心數位展演<br>
+                © 2025 版權所有
+            </div>
+        </div>
+
+        <!-- 頁腳 -->
+        <footer class="page-footer">
+            <p>&copy; 2025 北科大藝文中心. All rights reserved.</p>
+            <p style="margin-top: 0.5rem; opacity: 0.8;">Created by: 林莉婕, 郭采玲, 李佳珊, 許敦富</p>
+        </footer>
+    </div>
+
+    <script>
+        // 頁面載入動畫
+        document.addEventListener('DOMContentLoaded', function () {
+            // 設定初始狀態
+            const elements = document.querySelectorAll('.animate-fade');
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                
+                // 延遲動畫，創造依序出現效果
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 300);
+            });
+
+            // 側邊選單功能
+            const menuBtn = document.querySelector('.menu-btn');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const closeSidebar = document.getElementById('closeSidebar');
+
+            // 開啟選單
+            if (menuBtn) {
+                menuBtn.addEventListener('click', function () {
+                    sidebar.classList.add('active');
+                    sidebarOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+
+            // 關閉選單 - 點擊遮罩
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function () {
+                    closeSidebarFunc();
+                });
+            }
+
+            // 關閉選單 - 點擊關閉按鈕
+            if (closeSidebar) {
+                closeSidebar.addEventListener('click', function () {
+                    closeSidebarFunc();
+                });
+            }
+
+            // 關閉選單函數
+            function closeSidebarFunc() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+
+            // ESC 鍵關閉選單
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    closeSidebarFunc();
+                }
+            });
+
+            // 防止選單滾動時背景滾動
+            sidebar.addEventListener('touchmove', function(e) {
+                e.stopPropagation();
+            });
+
+            // 卡片hover效果（僅在支援hover的裝置上）
+            if (window.matchMedia('(hover: hover)').matches) {
+                const cards = document.querySelectorAll('.section-card');
+                cards.forEach(card => {
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-8px) scale(1.02)';
+                    });
+                    
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0) scale(1)';
+                    });
+                });
+            }
+
+            // 聯絡資訊點擊互動
+            const contactItems = document.querySelectorAll('.contact-item');
+            contactItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const label = this.querySelector('.contact-label').textContent;
+                    const value = this.querySelector('.contact-value').textContent;
+                    
+                    // 添加點擊回饋效果
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                    
+                    // 根據類型執行不同動作
+                    if (label === '電話') {
+                        if (confirm(`撥打電話：${value}?`)) {
+                            window.location.href = `tel:${value}`;
+                        }
+                    } else if (label === '電子郵件') {
+                        if (confirm(`發送郵件至：${value}?`)) {
+                            window.location.href = `mailto:${value}`;
+                        }
+                    }
+                });
+            });
+        });
+
+        // 導航功能
+        function goToHome() {
+            closeSidebarFunc();
+            // 回到主頁面
+            if (typeof window !== 'undefined') {
+                window.location.href = 'home.html';
+            }
+        }
+
+        function goToContent() {
+            closeSidebarFunc();
+            // 前往作品展覽頁面
+            if (typeof window !== 'undefined') {
+                window.location.href = 'index.html';
+            }
+        }
+
+        function goToAbout() {
+            closeSidebarFunc();
+            // 已在關於頁面，滾動到頂部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function closeSidebarFunc() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            if (sidebar && sidebarOverlay) {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // 觸摸回饋增強
+        document.addEventListener('touchstart', function() {}, {passive: true});
+
+        // 滾動視差效果（輕微）
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.page-header');
+            if (parallax) {
+                const speed = scrolled * 0.5;
+                parallax.style.transform = `translateY(${speed}px)`;
+            }
+        });
+    </script>
+</body>
+
+</html>

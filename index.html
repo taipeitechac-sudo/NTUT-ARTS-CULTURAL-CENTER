@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>藝文中心數位展演</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #f39c12;
+            --soft-gold: #f4d03f;
+            --warm-beige: #f8f6f0;
+            --text-dark: #2c3e50;
+            --text-light: #666;
+            --text-muted: #888;
+            --border-light: #e8e6e3;
+            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --gradient-warm: linear-gradient(135deg, #f8f6f0 0%, #f4d03f 100%);
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--warm-beige);
+            overflow-x: hidden;
+            line-height: 1.7;
+            color: var(--text-dark);
+            font-size: 16px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .logo-en {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.65rem;
+            line-height: 1.1;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
+        .logo-zh {
+            font-size: 0.9rem;
+            line-height: 1.2;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .content-container {
+            padding: 2rem 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .artwork-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .artwork-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .artwork-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .artwork-image {
+            width: 100%;
+            height: 200px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .artwork-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .artwork-info {
+            padding: 1rem;
+        }
+
+        .artwork-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+        .artwork-subtitle {
+            color: #6c757d;
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .artwork-code {
+            color: #adb5bd;
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+        }
+
+        .load-more {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .load-more-btn {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .load-more-btn:hover {
+            background: #e67e22;
+            transform: translateY(-1px);
+        }
+
+        .load-more-btn:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .navigation-hint {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin: 2rem 0 1rem 0;
+        }
+
+        .zone-navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 0.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            max-width: 90vw;
+            overflow: hidden;
+        }
+
+        .nav-arrow {
+            width: 35px;
+            height: 35px;
+            border: none;
+            background: none;
+            color: #6c757d;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .nav-arrow:hover {
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .nav-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .zone-slider {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 0 0.5rem;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .zone-slider::-webkit-scrollbar {
+            display: none;
+        }
+
+        .zone-btn {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 50%;
+            background: white;
+            color: #6c757d;
+            font-weight: bold;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .zone-btn:hover {
+            background: #f8f9fa;
+            transform: scale(1.05);
+        }
+
+        .zone-btn.active {
+            background: #f39c12;
+            color: white;
+            transform: scale(0.9);
+        }
+
+        .zone-btn.active::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 2px solid #f39c12;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        .zone-indicator {
+            position: fixed;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.5rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #2c3e50;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+
+        .end-message {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .artwork-detail {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .detail-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1001;
+        }
+
+        /*new*/
+        .detail-specs {
+            white-space: pre-line;
+            color: #808080;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .detail-content {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .detail-image {
+            width: 100%;
+
+            background: #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .detail-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .detail-info {
+            margin-bottom: 2rem;
+        }
+
+        .detail-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-subtitle {
+            font-size: 1rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+
+        .detail-code {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: bold;
+        }
+
+        .detail-description {
+            line-height: 1.8;
+            color: #2c3e50;
+            margin-bottom: 2rem;
+        }
+
+        .detail-description-en {
+            line-height: 1.6;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid #e9ecef;
+            color: #adb5bd;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 480px) {
+            .detail-content {
+                padding: 1.5rem 1rem;
+            }
+
+            .detail-code {
+                top: 1rem;
+                right: 1rem;
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content-container {
+                padding: 1rem 0.5rem;
+            }
+
+            .artwork-grid {
+                gap: 1rem;
+            }
+
+            .artwork-image {
+                height: 150px;
+            }
+
+            .zone-navigation {
+                bottom: 1rem;
+                padding: 0.3rem;
+            }
+
+            .zone-btn,
+            .nav-arrow {
+                width: 30px;
+                height: 30px;
+                font-size: 0.7rem;
+            }
+        }
+
+        /* 側邊菜單樣式 */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(320px, 85vw);
+            height: 100%;
+            background: white;
+            z-index: 201;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -4px 0 30px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 1.8rem 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--warm-beige);
+        }
+
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+            transform: scale(0.9);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 1.2rem 1.5rem;
+            color: #2c3e50;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background: #f8f6f0;
+            color: #f39c12;
+            transform: translateX(4px);
+        }
+
+        .menu-item.active {
+            background: #f8f6f0;
+            color: #f39c12;
+            font-weight: 500;
+        }
+
+        .menu-item:active {
+            background: var(--warm-beige);
+            color: var(--accent-color);
+            transform: translateX(4px);
+        }
+
+        .menu-item.active {
+            background: var(--warm-beige);
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .menu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #f39c12;
+        }
+
+        .menu-icon {
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .menu-text {
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e8e6e3;
+            color: #666;
+            font-size: 0.8rem;
+            text-align: center;
+            background: #fafafa;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-en">ARTS & CULTURAL CENTER</div>
+                <div class="logo-zh">藝文中心數位展演</div>
+            </div>
+            <button class="menu-btn" @click="toggleMenu">⋯</button>
+        </header>
+
+        <div class="content-container">
+            <div class="artwork-grid">
+                <div v-for="artwork in displayedArtworks" :key="artwork.id" class="artwork-card"
+                    @click="selectArtwork(artwork)">
+                    <div class="artwork-image">
+                        <img :src="artwork.image" :alt="artwork.title">
+                    </div>
+                    <div class="artwork-info">
+                        <div class="artwork-title">{{ artwork.title }}</div>
+                        <div class="artwork-subtitle">{{ artwork.subtitle }}</div>
+                        <div class="artwork-code">{{ artwork.code }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="load-more" v-if="!allLoaded && !loading">
+                <button class="load-more-btn" @click="loadMore">
+                    載入更多作品
+                </button>
+            </div>
+
+            <div class="loading" v-if="loading">
+                正在載入作品...
+            </div>
+        </div>
+
+        <nav class="zone-navigation">
+            <button class="nav-arrow" @click="previousZone" :disabled="currentZoneIndex === 0">‹</button>
+            <div class="zone-slider" ref="zoneSlider">
+                <button v-for="(zone, index) in zones" :key="zone"
+                    :class="['zone-btn', { active: currentZone === zone }]" @click="goToZone(zone)"
+                    :ref="'zone-' + zone">
+                    {{ zone }}
+                </button>
+            </div>
+            <button class="nav-arrow" @click="nextZone" :disabled="currentZoneIndex === zones.length - 1">›</button>
+        </nav>
+
+        <!-- Sidebar -->
+        <div class="sidebar-overlay" :class="{ active: sidebarOpen }" @click="closeSidebar"></div>
+        <div class="sidebar" :class="{ active: sidebarOpen }">
+            <div class="sidebar-header">
+                <div class="sidebar-title">菜單</div>
+                <button class="close-btn" @click="closeSidebar">×</button>
+            </div>
+            <div class="sidebar-content">
+                <button class="menu-item" @click="goToHome">
+                    <span class="menu-icon">🏠</span>
+                    <span class="menu-text">主頁</span>
+                </button>
+                <button class="menu-item active" @click="goToContent">
+                    <span class="menu-icon">🖼️</span>
+                    <span class="menu-text">作品展覽</span>
+                </button>
+                <button class="menu-item" @click="goToAbout">
+                    <span class="menu-icon">ℹ️</span>
+                    <span class="menu-text">關於展覽</span>
+                </button>
+            </div>
+            <div class="sidebar-footer">
+                藝文中心數位展演<br>
+                © 2025 版權所有
+            </div>
+        </div>
+
+        <!-- 作品詳細頁面 -->
+        <div class="artwork-detail" v-if="selectedArtwork">
+            <header class="detail-header">
+                <button class="back-btn" @click="closeDetail">
+                    <span>←</span>
+                    <span>返回</span>
+                </button>
+                <div class="detail-code">{{ selectedArtwork.code }}</div>
+            </header>
+
+            <div class="detail-content">
+                <div class="detail-image">
+                    <img :src="selectedArtwork.image" :alt="selectedArtwork.title">
+                </div>
+
+                <div class="detail-info">
+                    <h1 class="detail-title">{{ selectedArtwork.title }}</h1>
+                    <p class="detail-subtitle">{{ selectedArtwork.subtitle }}</p>
+                    <!--新增內文-->
+                    <pre class="detail-specs">{{ selectedArtwork.specs }}</pre>
+                </div>
+
+                <div class="detail-description">
+                    {{ getArtworkDescription(selectedArtwork) }}
+                </div>
+
+                <div class="detail-description-en">
+                    {{ getArtworkDescriptionEN(selectedArtwork) }}
+                </div>
+
+                <div class="detail-footer">
+                    copyright© 北科大藝文中心
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    currentZone: 'A',
+                    zones: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P'],
+                    displayedArtworks: [],
+                    currentPage: 1,
+                    artworksPerPage: 4,
+                    loading: false,
+                    allZoneArtworks: {},
+                    totalArtworksPerZone: {
+                        'A': 13, 'B': 20, 'C': 12, 'D': 12, 'E': 7, 'F': 7, 'G': 12, 'H': 5,
+                        'I': 4, 'J': 9, 'K': 10, 'L': 4, 'M': 2, 'N': 4, 'O': 7, 'P': 3
+                    },
+                    // 自訂標題映射：key `${zone}-${index}` → 標題
+                    customTitles: {},
+                    selectedArtwork: null,
+                    sidebarOpen: false,
+                }
+            },
+            computed: {
+                currentZoneIndex() {
+                    return this.zones.indexOf(this.currentZone);
+                },
+                allLoaded() {
+                    const totalArtworks = this.totalArtworksPerZone[this.currentZone];
+                    return this.displayedArtworks.length >= totalArtworks;
+                }
+            },
+            mounted() {
+                this.loadZoneArtworks(this.currentZone);
+            },
+            methods: {
+                // 為每個展區生成不同的作品標題
+                generateArtworkTitle(zone, index) {
+                    const titleTemplates = {
+                        'A': ['男人男人', '女人女人', '女人女人', '女人女人', '女人女人', '男人男人', '女人女人', '男人男人', 'X !', '男人男人', '男人男人', '女人女人', '女人女人  '],
+                        'B': ['你好我是B01', '你好我是B02', '你好我是B03', '你好我是B04', '你好我是B05', '你好我是B06', '你好我是B07', '你好我是B08', '你好我是B09', '你好我是B10', '你好我是B11', '你好我是B12', '你好我是B13', '你好我是B14', '你好我是B15', '你好我是B16', '你好我是B17', '你好我是B18', '你好我是B19', '你好我是B20'],
+                        'C': ['五月歸來不見山', '諸事吉祥', '畫畫應該是什麼', '只有藍色', '一方天地', '萬象', '只緣身在此山中', '只緣身在此山中', '墨韻', '柿柿如意', '築', '窗'],
+                        'D': ['青春嶺', '采菊東籬', '讀你', '遺忘', '拾二樂(一)', '拾二樂(二)', '同趣', '藪秋', '細數落花', '雪兒', '春之祭', '秋的光影'],
+                        'E': ['赤焰', '漂流瓶', '致敬朱銘太極', '花花世界', '飛花令', '花非花'],
+                        'F': ['藍色凝視', '火鳥', '非禮勿視', '肥貓', '黑色小鴨', '依偎', 'Bonjour同路人'],
+                        'G': ['變形記', '錯寫花神', '綠焰之書', '桃紅陷阱', '風吹的願望', '玫瑰之吻', '彼時此刻', '如詩之形', '光的書寫', '夜之脈動', '人生這一味', '舞者'],
+                        'H': ['穿花裙的女人', '旅人', '聘婷', '少女', '塔羅夫人'],
+                        'I': ['明月是前身', '猜不透的我', '五福臨門', '戴耳環的少女'],
+                        'J': ['寓言者', '戀', '孤勇者', '悠然自得', '叛變', '青春風暴', '難兄難弟', '七巧喵喵', '綠野仙蹤'],
+                        'K': ['告白', '人生習作', '自槓', '渡無人', '能言善道', '點絳唇', '過於喧囂的孤獨', '得心自在', 'Les feuilles mortes', '吉象吉相'],
+                        'L': ['甜蜜蜜', '帽簷下的困惑', '一步之遙', '手風琴手未央歌'],
+                        'M': ['觀自在', '人之初'],
+                        'N': ['孤城萬仞', '遠眺富士山', '玉山', '未至之境'],
+                        'O': ['懸浮關係', '夸父追日', '團團圓圓', '凝視', '抗疫', '歸途', '一葉扁舟——致敬葛飾北齋'],
+                        'P': ['錯落的痕跡', '邊緣人', '聞天語']
+                    };
+
+                    const zoneTemplates = titleTemplates[zone] || [`${zone}區作品`];
+                    return zoneTemplates[(index - 1) % zoneTemplates.length] || `${zone}${index.toString().padStart(2, '0')}號作品`;
+                },
+
+                // 為每個展區生成不同的作品副標題
+                generateArtworkSubtitle(zone, index) {
+                    const subtitleTemplates = {
+                        'A': ['妳好我是A01', '妳好我是A02', '妳好我是A03', '妳好我是A04', '妳好我是A05', '妳好我是A06', '妳好我是A07', '妳好我是A08', '妳好我是A09', '妳好我是A10', '妳好我是A11', '妳好我是A12', '妳好我是A13'],
+                        'B': ['書法藝術', '墨韻流淌', '筆墨精神', '字裡行間', '詩書畫意', '翰墨丹青', '行雲流水', '筆走龍蛇', '墨香書韻', '文字之美', '筆法精研', '墨色層次', '書體演變', '古韻新意', '筆墨情懷', '文房四寶', '碑帖研習', '書道精神', '墨寶傳承', '筆意縱橫'],
+                        'C': ['陶瓷藝術', '泥土重生', '火與土的對話', '釉色變化', '器型之美', '手工溫度', '古法新韻', '窯火淬煉', '質感探索', '實用之美', '傳統工藝', '現代詮釋'],
+                        'D': ['雕塑藝術', '立體造型', '材質對話', '空間關係', '光影變化', '觸感體驗', '重量與平衡', '動態與靜態', '表面處理', '結構美學', '比例研究', '抽象雕塑', '具象表現', '環境雕塑', '互動裝置', '材料實驗', '工藝技法', '概念轉化'],
+                        'E': ['版畫藝術', '印刷之美', '複製與原創', '線條表現', '色彩層疊', '紋理效果', '限量珍藏', '工藝精湛', '創意無限', '技法探索', '視覺語言', '圖像敘事', '印痕記錄', '藝術複製', '手工印製'],
+                        'F': ['攝影藝術', '光影捕捉', '瞬間永恆', '視角探索', '黑白世界', '色彩饕餮', '紀實攝影', '藝術創作', '數位影像', '底片回歸', '構圖美學', '人文關懷', '自然紀錄', '街頭紀實'],
+                        'G': ['數位藝術', '科技美學', '虛擬實境', '互動體驗', '程式創作', 'AI協作', '新媒體藝術', '數位繪畫', '3D建模', '動態影像', '聲音藝術', '網路藝術', '遊戲藝術', '擴增實境', '區塊鏈藝術', '生成藝術', '演算法美學'],
+                        'H': ['裝置藝術', '空間對話', '環境介入', '觀眾參與', '材料實驗', '概念傳達', '感官體驗', '社會議題', '文化反思', '科技融合', '生態關懷', '記憶重構', '身份認同'],
+                        'I': ['繪畫藝術', '筆觸表現', '色彩理論', '構圖研究', '技法探索', '風格發展', '主題創作', '情感投射', '視覺語言', '畫面經營', '材料運用', '光影處理', '質感表現', '空間營造', '動態捕捉', '靜物描繪', '人物刻劃', '風景再現', '抽象表達'],
+                        'J': ['纖維藝術', '織造之美', '材質對話', '結構探索', '色彩搭配', '工藝傳承', '現代詮釋', '觸感體驗', '實用美學', '文化符號', '創新技法'],
+                        'K': ['玻璃藝術', '透明詩意', '光線折射', '色彩透析', '熔融之美', '工藝挑戰', '材質特性', '溫度控制', '形態變化', '裝飾藝術', '實用器皿', '藝術創作', '技術創新', '美學探索', '光影效果', '質感層次'],
+                        'L': ['金工藝術', '金屬鍛造', '工藝精神', '材質美學', '功能與美', '傳統技法', '現代設計', '首飾創作', '器皿製作', '雕塑應用', '表面處理', '結構工程', '精密工藝', '藝術價值', '實用功能', '文化象徵', '創新材料', '工匠精神'],
+                        'M': ['多媒體藝術', '跨界創作', '媒材融合', '技術創新', '概念實驗', '互動設計', '視聽結合', '數位整合', '傳統與現代', '科技美學', '體驗設計', '感官刺激', '創意表達', '媒體語言', '時代精神', '藝術革新', '未來展望', '文化對話', '社會關懷', '人文思考'],
+                        'N': ['自然藝術', '生態美學', '環境藝術', '永續創作', '有機形態', '自然材料', '生命力量', '季節變化', '成長紀錄', '生態平衡', '環保意識', '綠色藝術', '自然循環', '生物多樣'],
+                        'O': ['觀念藝術', '思想實驗', '概念先行', '哲學思辨', '社會批判', '文化反思', '意義探索', '語言遊戲', '符號解析', '理論實踐', '觀念傳達', '思維視覺化', '抽象概念', '精神探索', '存在思考', '時間哲學', '空間意識'],
+                        'P': ['表演藝術', '身體語言', '動作詩學', '時間藝術', '現場體驗', '觀眾互動', '即興創作', '劇場實驗', '舞蹈創作', '音樂表演', '跨域合作', '文化交流']
+                    };
+
+                    const zoneTemplates = subtitleTemplates[zone] || ['A World of One\'s Own'];
+                    return zoneTemplates[(index - 1) % zoneTemplates.length] || 'A World of One\'s Own';
+                },
+
+                generateArtworkSpecs(zone, index) {
+                    const specsTemplates = {
+                        'A': [
+                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '96 X 189 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
+                        ],
+                        'B': [
+                            '直徑 25 cm / 高 30 cm\n陶土 / 釉料\n2023',
+                            '20 X 20 X 15 cm\n瓷土 / 青瓷釉\n2022',
+                            '直徑 35 cm / 高 20 cm\n陶土 / 天目釉\n2023',
+                            '25 X 15 X 40 cm\n白瓷土 / 透明釉\n2022',
+                            '直徑 30 cm / 高 25 cm\n紅陶土 / 鐵釉\n2023',
+                            '18 X 12 X 35 cm\n瓷土 / 青白釉\n2022',
+                            '直徑 40 cm / 高 15 cm\n陶土 / 黑釉\n2023',
+                            '30 X 30 X 20 cm\n白土 / 結晶釉\n2022'
+                        ],
+                        'C': [
+                            '34 X 67 cm\n水彩 / 宣紙\n2015',
+                            '34 X 24 cm\n廣告顏料 / 宣紙\n2015',
+                            '35 X 34 cm\n廣告顏料 / 宣紙\n2015',
+                            '34 X 34 cm\n廣告顏料 / 宣紙\n2015.05.09',
+                            '38 X 34 cm\n廣告顏料 / 宣紙\n2014.09.09',
+                            '34 X 24 cm\n廣告顏料 / 宣紙\n2015',
+                            '68 X 34 cm\n廣告顏料 / 宣紙\n2015.06.10',
+                            '68 X 34 cm\n廣告顏料 / 宣紙\n2015.06.10',
+                            '34 X 34 cm\n廣告顏料 / 宣紙\n2015.04.15',
+                            '67 X 34 cm\n水彩 / 宣紙\n2015',
+                            '34 X 34 cm\n廣告顏料 / 宣紙\n2015.05.01',
+                            '34 X 67 cm\n水墨 / 宣紙\n2015.05.27',
+                        ],
+                        'D': [
+                            '137 X 69 cm\n壓克力顏料 / 宣紙\n2018',
+                            '33 X 67 cm\n水彩 / 宣紙\n2015.06.21',
+                            '53 X 39 cm\n廣告顏料 / 水彩紙\n2016',
+                            '53 X 39 cm\n廣告顏料 / 水彩紙\n2015',
+                            '61 X 31 cm\n水彩 / 宣紙\n2015',
+                            '61 X 31 cm\n水彩 / 宣紙\n2015',
+                            '50 X 66 cm\n壓克力顏料 / 水彩紙\n2021',
+                            '38 X 53 cm\n壓克力顏料 / 水彩紙\n2016',
+                            '30 X 62 cm\n水彩 / 宣紙\n2015',
+                            '53 X 39 cm\n廣告顏料 / 水彩紙\n2015',
+                            '55 X 40 cm\n壓克力顏料 / 水彩紙\n2018',
+                            '97 X 64 cm\n壓克力顏料 / 五彩紙\n2018',
+
+                        ],
+                        'E': [
+                            '77 X 141 cm\n壓克力顏料 / 五彩紙\n2018',
+                            '144 X 79 cm\n水彩/宣紙\n2017',
+                            '97 X 65 cm\n壓克力顏料 / 水彩紙\n2022',
+                            '65 X 97 cm\n壓克力顏料 / 五彩紙\n2018',
+                            '54 X 78 cmm\n壓克力顏料 / 瓦楞紙\n2020',
+                            '54 X 79 cm\n壓克力顏料 / 瓦楞紙\n2018',
+                            '55 X 78 cm\n壓克力顏料 / 瓦楞紙\n2022',
+                        ],
+                        'F': [
+                            '50 X 65 cm\n壓克力顏料 / 五彩紙\n2021',
+                            '98 X 65 cm\n壓克力顏料 / 五彩紙\n2021',
+                            '97 X 65 cm\n壓克力顏料 / 五彩紙\n2022',
+                            '50 X 66 cm\n壓克力顏料 / 水彩紙\n2018',
+                            '141 X 75 cm\n壓克力顏料 / 五彩紙\n2018',
+                            '49 X 78 cm\n壓克力顏料 / 楮皮紙\n2021',
+                            '78 X 143 cm\n壓克力顏料 / 雲龍紙\n2021',
+                        ],
+                        'G': [
+                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
+                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
+                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
+                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
+                            '97 X 66 cm\n廣告顏料 / 五彩紙\n2022',
+                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
+                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
+                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
+                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
+                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
+                        ],
+                        'H': [
+                            '64 X 97 cm\n壓克力顏料 / 五彩紙\n2020',
+                            '64 X 97 cm\n壓克力顏料 / 五彩紙\n2020',
+                            '64 X 97 cm\n壓克力顏料 / 五彩紙\n2020',
+                            '64 X 94 cm\n壓克力顏料 / 五彩紙\n2020',
+                            '64 X 97 cm\n壓克力顏料 / 五彩紙\n2020',
+                        ],
+                        'I': [
+                            '51 X 68 cm\n壓克力顏料 / 楮皮紙\n2020',
+                            '51 X 68 cm\n壓克力顏料 / 五彩紙\n2020',
+                            '94 X 67 cm\n壓克力顏料 / 五彩紙\n2020',
+                            '87 X 64 cm\n壓克力顏料 / 五彩紙\n2020',
+                        ],
+                        'J': [
+                            '49 X 67 cm\n壓克力顏料 / 五彩紙\n2019',
+                            '60 X 86 cm\n壓克力顏料 / 皺紋紙\n2020',
+                            '81 X 63 cm\n壓克力顏料 / 皺紋紙\n2020',
+                            '64 X 97 cm\n壓克力顏料 / 皺紋紙\n2020',
+                            '54 X 78 cm\n壓克力顏料 / 瓦楞紙\n2020',
+                            '64 X 96 cm\n壓克力顏料 / 楮皮紙\n2020',
+                            '70 X 82 cm\n壓克力顏料 / 楮皮紙\n2020',
+                            '67 X 51 cm\n壓克力顏料/水彩紙\n2021',
+                            '79 X 143 cm\n壓克力顏料 / 五彩紙\n2019',
+                        ],
+                        'K': [
+                            '54 X 79 cm\n壓克力顏料 / 瓦楞紙\n2020',
+                            '40 X 55 cm\n粉彩 / 水彩紙\n2021',
+                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '65 X 98 cm\n壓克力顏料 / 五彩紙\n2021',
+                            '78 X 94 cmm\n壓克力顏料 / 楮皮紙\n2020',
+                            '97 X 64 cm\n壓克力顏料 / 五彩紙\n2019',
+                            '60 X 87 cm\n壓克力顏料 / 皺紋紙\n2019',
+                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2021',
+                            '79 X 142 cm\n壓克力顏料 / 雲龍紙\n2021',
+                        ],
+                        'L': [
+                            '63 X 92 cm\n壓克力顏料 / 楮皮紙\n2018',
+                            '63 X 96 cm\n壓克力顏料 / 五彩紙\n2018',
+                            '63 X 96 cm\n壓克力顏料 / 五彩紙\n2018',
+                            '60 X 87 cm\n壓克力顏料 / 皺紋紙\n2019',
+                        ],
+                        'M': [
+                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
+                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
+                        ],
+                        'N': [
+                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
+                            '78 X 54 cm\n壓克力顏料 / 瓦楞紙\n2020',
+                            '65 X 92 cm\n壓克力顏料 / 楮皮紙\n2022',
+                            '66 X 98 cm\n廣告顏料 / 楮皮紙\n2024',
+                        ],
+                        'O': [
+                            '187 X 93 cm\n壓克力顏料\n2017',
+                            '66 X 98 cm\n壓克力顏料 / 五彩紙\n2023',
+                            '67 X 98 cm\n壓克力顏料 / 五彩紙\n2021',
+                            '51 X 66 cm\n壓克力顏料 / 楮皮紙\n2023',
+                            '66 X 50 cm\n壓克力顏料 / 水彩紙\n2021',
+                            '78 X 54 cm\n壓克力顏料 / 瓦楞紙\n2020',
+                            '72 X 54 cm\n壓克力顏料 / 瓦楞紙\n2020',
+                        ],
+                        'P': [
+                            '55 X 78 cm\n壓克力顏料 / 宣紙\n2018',
+                            '50 X 67 cm\n廣告顏料 / 水彩紙\n2021',
+                            '54 X 78 cm\n壓克力顏料 / 瓦楞紙\n2020',
+                        ]
+                    };
+
+                    const zoneTemplates = specsTemplates[zone] || ['尺寸可變\n混合媒材\n2023'];
+                    return zoneTemplates[(index - 1) % zoneTemplates.length] || '尺寸可變\n混合媒材\n2023';
+                },
+
+                generateArtwork(zone, index) {
+                    const key = `${zone}-${index}`;
+
+                    // 使用自訂標題或生成的唯一標題
+                    const title = this.customTitles[key] || this.generateArtworkTitle(zone, index);
+                    const subtitle = this.generateArtworkSubtitle(zone, index);
+
+                    //新增
+                    const specs = this.generateArtworkSpecs(zone, index);
+
+                    return {
+                        id: key,
+                        title,
+                        subtitle,
+                        code: `${zone}${index.toString().padStart(2, '0')}`,
+                        image: `images/${zone}/artwork${index}.jpg`,
+
+                        //new add 
+                        specs
+                    };
+                },
+
+                loadZoneArtworks(zone) {
+                    if (!this.allZoneArtworks[zone]) {
+                        const artworks = [];
+                        const totalCount = this.totalArtworksPerZone[zone];
+
+                        for (let i = 1; i <= totalCount; i++) {
+                            artworks.push(this.generateArtwork(zone, i));
+                        }
+
+                        this.allZoneArtworks[zone] = artworks;
+                    } else {
+                        // 如果已載入，重新同步自訂標題（避免後續修改無法反映）
+                        this.allZoneArtworks[zone] = this.allZoneArtworks[zone].map((a, idx) => {
+                            const key = `${zone}-${idx + 1}`;
+                            return {
+                                ...a,
+                                title: this.customTitles[key] || this.generateArtworkTitle(zone, idx + 1)
+                            };
+                        });
+                    }
+
+                    // 重置當前頁面和顯示的作品
+                    this.currentPage = 1;
+                    this.displayedArtworks = this.allZoneArtworks[zone].slice(0, this.artworksPerPage);
+                },
+
+                loadMore() {
+                    this.loading = true;
+
+                    setTimeout(() => {
+                        const startIndex = this.currentPage * this.artworksPerPage;
+                        const endIndex = startIndex + this.artworksPerPage;
+                        const newArtworks = this.allZoneArtworks[this.currentZone].slice(startIndex, endIndex);
+
+                        this.displayedArtworks.push(...newArtworks);
+                        this.currentPage++;
+                        this.loading = false;
+                    }, 800);
+                },
+
+                goToZone(zone) {
+                    if (zone !== this.currentZone) {
+                        this.currentZone = zone;
+                        this.loadZoneArtworks(zone);
+
+                        // 滾動到該區域按鈕的中央
+                        this.$nextTick(() => {
+                            const zoneBtn = this.$refs['zone-' + zone]?.[0];
+                            if (zoneBtn) {
+                                zoneBtn.scrollIntoView({
+                                    behavior: 'smooth',
+                                    inline: 'center'
+                                });
+                            }
+                        });
+
+                        // 滾動到頂部
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                },
+
+                previousZone() {
+                    if (this.currentZoneIndex > 0) {
+                        const newZone = this.zones[this.currentZoneIndex - 1];
+                        this.goToZone(newZone);
+                    }
+                },
+
+                nextZone() {
+                    if (this.currentZoneIndex < this.zones.length - 1) {
+                        const newZone = this.zones[this.currentZoneIndex + 1];
+                        this.goToZone(newZone);
+                    }
+                },
+
+                selectArtwork(artwork) {
+                    this.selectedArtwork = artwork;
+                    // 阻止背景滾動
+                    document.body.style.overflow = 'hidden';
+                },
+
+                closeDetail() {
+                    this.selectedArtwork = null;
+                    // 恢復背景滾動
+                    document.body.style.overflow = 'auto';
+                },
+
+                getArtworkDescription(artwork) {
+                    const descriptions = {
+                        "A-1": "太陽底下無新鮮事，而導演李安卻把世間〈飲食男女〉細膩人性透過銀幕淋漓盡致地表達，畫家蘇一仲則鍾情運筆刻畫人性思維和心緒，畫作《女人女人》和《男人男人》即其經典之作，不落俗套。《男人男人》透過五幅形象鮮明的人物肖像，探討「男性多重面貌」這一主題。作品不僅呈現了不同性格、氣質與情緒的男性樣貌，更試圖突顯男性個體在社會與自我之間所面臨的矛盾與爭扎。這不單是「五個男人」，更是一個「男人」內心的五種可能面貌。人物的面部線條及顏色處理統一以高對比的方式描繪，色彩既跳躍又矛盾，展現個體獨立情感，如童稚、自信、冷漠、理性與壓抑等；而構圖比例不拘、變形誇張，強調內心狀態而非寫實樣貌，暗示男性角色在自我形象建構中的失衡。閱讀這些臉孔，彷彿在觀察一段靜默卻騷動的男性心事拼圖。",
+                        "A-2": "這是一組關於「女性存在」的肖像，也是一場風格化的視覺探索與自我辯證。每一張臉都像一個片段，有的神秘、有的自信、有的內斂、有的張揚，組合起來，就是當代女性的多重面貌。構圖多採用對稱或半側臉肖像形式，背景簡化處理，將焦點集中在臉部表情與眼神交流上。鮮明色彩賦予也代表每個角色的人格特質。她們或微笑、或審視、或沉思、或帶有戲謔。整體氛圍介於時尚漫畫與現代藝術之間，既親切又陌生，每個人物帶有強烈手感與情緒溫度，不再是「美麗」的僵固再現，而是活躍於畫布上的主體。",
+                        "A-3": "這是一組關於「女性存在」的肖像，也是一場風格化的視覺探索與自我辯證。每一張臉都像一個片段，有的神秘、有的自信、有的內斂、有的張揚，組合起來，就是當代女性的多重面貌。構圖多採用對稱或半側臉肖像形式，背景簡化處理，將焦點集中在臉部表情與眼神交流上。鮮明色彩賦予也代表每個角色的人格特質。她們或微笑、或審視、或沉思、或帶有戲謔。整體氛圍介於時尚漫畫與現代藝術之間，既親切又陌生，每個人物帶有強烈手感與情緒溫度，不再是「美麗」的僵固再現，而是活躍於畫布上的主體。",
+                        "A-4": "這是一組關於「女性存在」的肖像，也是一場風格化的視覺探索與自我辯證。每一張臉都像一個片段，有的神秘、有的自信、有的內斂、有的張揚，組合起來，就是當代女性的多重面貌。構圖多採用對稱或半側臉肖像形式，背景簡化處理，將焦點集中在臉部表情與眼神交流上。鮮明色彩賦予也代表每個角色的人格特質。她們或微笑、或審視、或沉思、或帶有戲謔。整體氛圍介於時尚漫畫與現代藝術之間，既親切又陌生，每個人物帶有強烈手感與情緒溫度，不再是「美麗」的僵固再現，而是活躍於畫布上的主體。",
+                        "A-5": "這是一組關於「女性存在」的肖像，也是一場風格化的視覺探索與自我辯證。每一張臉都像一個片段，有的神秘、有的自信、有的內斂、有的張揚，組合起來，就是當代女性的多重面貌。構圖多採用對稱或半側臉肖像形式，背景簡化處理，將焦點集中在臉部表情與眼神交流上。鮮明色彩賦予也代表每個角色的人格特質。她們或微笑、或審視、或沉思、或帶有戲謔。整體氛圍介於時尚漫畫與現代藝術之間，既親切又陌生，每個人物帶有強烈手感與情緒溫度，不再是「美麗」的僵固再現，而是活躍於畫布上的主體。",
+                        "A-6": "太陽底下無新鮮事，而導演李安卻把世間〈飲食男女〉細膩人性透過銀幕淋漓盡致地表達，畫家蘇一仲則鍾情運筆刻畫人性思維和心緒，畫作《女人女人》和《男人男人》即其經典之作，不落俗套。《男人男人》透過五幅形象鮮明的人物肖像，探討「男性多重面貌」這一主題。作品不僅呈現了不同性格、氣質與情緒的男性樣貌，更試圖突顯男性個體在社會與自我之間所面臨的矛盾與爭扎。這不單是「五個男人」，更是一個「男人」內心的五種可能面貌。人物的面部線條及顏色處理統一以高對比的方式描繪，色彩既跳躍又矛盾，展現個體獨立情感，如童稚、自信、冷漠、理性與壓抑等；而構圖比例不拘、變形誇張，強調內心狀態而非寫實樣貌，暗示男性角色在自我形象建構中的失衡。閱讀這些臉孔，彷彿在觀察一段靜默卻騷動的男性心事拼圖。",
+                        "A-7": "這是一組關於「女性存在」的肖像，也是一場風格化的視覺探索與自我辯證。每一張臉都像一個片段，有的神秘、有的自信、有的內斂、有的張揚，組合起來，就是當代女性的多重面貌。構圖多採用對稱或半側臉肖像形式，背景簡化處理，將焦點集中在臉部表情與眼神交流上。鮮明色彩賦予也代表每個角色的人格特質。她們或微笑、或審視、或沉思、或帶有戲謔。整體氛圍介於時尚漫畫與現代藝術之間，既親切又陌生，每個人物帶有強烈手感與情緒溫度，不再是「美麗」的僵固再現，而是活躍於畫布上的主體。",
+                        "A-8": "太陽底下無新鮮事，而導演李安卻把世間〈飲食男女〉細膩人性透過銀幕淋漓盡致地表達，畫家蘇一仲則鍾情運筆刻畫人性思維和心緒，畫作《女人女人》和《男人男人》即其經典之作，不落俗套。《男人男人》透過五幅形象鮮明的人物肖像，探討「男性多重面貌」這一主題。作品不僅呈現了不同性格、氣質與情緒的男性樣貌，更試圖突顯男性個體在社會與自我之間所面臨的矛盾與爭扎。這不單是「五個男人」，更是一個「男人」內心的五種可能面貌。人物的面部線條及顏色處理統一以高對比的方式描繪，色彩既跳躍又矛盾，展現個體獨立情感，如童稚、自信、冷漠、理性與壓抑等；而構圖比例不拘、變形誇張，強調內心狀態而非寫實樣貌，暗示男性角色在自我形象建構中的失衡。閱讀這些臉孔，彷彿在觀察一段靜默卻騷動的男性心事拼圖。",
+                        "A-9": "本作以漫畫化誇張的臉部表情與手勢捕捉瞬間爆發的強烈情緒。人物居中，但其不尋常的臉部比例與誇張表情打破了常規肖像的結構，將視覺重點集中在皺眉、翻白眼與手指的動作上。粗重明確的黑色線條勾勒出一種漫畫或塗鴉式的諷刺風格，人物臉上黃與棕的暈染像是怒火與憤慨的交織，為整體畫面注入火山般即將噴發的能量。強烈的大紅背景彷彿空氣都燒起來，而那高舉的中指，是警告，也是宣判，直接將觀者拉進一場心理爆裂的現場。整幅畫在誇張與簡化之中，留下一種不可忽視的衝擊力，讓人會心一笑。",
+                        "A-10": "這是一組關於「女性存在」的肖像，也是一場風格化的視覺探索與自我辯證。每一張臉都像一個片段，有的神秘、有的自信、有的內斂、有的張揚，組合起來，就是當代女性的多重面貌。構圖多採用對稱或半側臉肖像形式，背景簡化處理，將焦點集中在臉部表情與眼神交流上。鮮明色彩賦予也代表每個角色的人格特質。她們或微笑、或審視、或沉思、或帶有戲謔。整體氛圍介於時尚漫畫與現代藝術之間，既親切又陌生，每個人物帶有強烈手感與情緒溫度，不再是「美麗」的僵固再現，而是活躍於畫布上的主體。",
+                        "A-11": "太陽底下無新鮮事，而導演李安卻把世間〈飲食男女〉細膩人性透過銀幕淋漓盡致地表達，畫家蘇一仲則鍾情運筆刻畫人性思維和心緒，畫作《女人女人》和《男人男人》即其經典之作，不落俗套。《男人男人》透過五幅形象鮮明的人物肖像，探討「男性多重面貌」這一主題。作品不僅呈現了不同性格、氣質與情緒的男性樣貌，更試圖突顯男性個體在社會與自我之間所面臨的矛盾與爭扎。這不單是「五個男人」，更是一個「男人」內心的五種可能面貌。人物的面部線條及顏色處理統一以高對比的方式描繪，色彩既跳躍又矛盾，展現個體獨立情感，如童稚、自信、冷漠、理性與壓抑等；而構圖比例不拘、變形誇張，強調內心狀態而非寫實樣貌，暗示男性角色在自我形象建構中的失衡。閱讀這些臉孔，彷彿在觀察一段靜默卻騷動的男性心事拼圖。",
+                        "A-12": "這是一組關於「女性存在」的肖像，也是一場風格化的視覺探索與自我辯證。每一張臉都像一個片段，有的神秘、有的自信、有的內斂、有的張揚，組合起來，就是當代女性的多重面貌。構圖多採用對稱或半側臉肖像形式，背景簡化處理，將焦點集中在臉部表情與眼神交流上。鮮明色彩賦予也代表每個角色的人格特質。她們或微笑、或審視、或沉思、或帶有戲謔。整體氛圍介於時尚漫畫與現代藝術之間，既親切又陌生，每個人物帶有強烈手感與情緒溫度，不再是「美麗」的僵固再現，而是活躍於畫布上的主體。",
+                        "A-13": "這是一組關於「女性存在」的肖像，也是一場風格化的視覺探索與自我辯證。每一張臉都像一個片段，有的神秘、有的自信、有的內斂、有的張揚，組合起來，就是當代女性的多重面貌。構圖多採用對稱或半側臉肖像形式，背景簡化處理，將焦點集中在臉部表情與眼神交流上。鮮明色彩賦予也代表每個角色的人格特質。她們或微笑、或審視、或沉思、或帶有戲謔。整體氛圍介於時尚漫畫與現代藝術之間，既親切又陌生，每個人物帶有強烈手感與情緒溫度，不再是「美麗」的僵固再現，而是活躍於畫布上的主體。",
+                        "B-1": "這是B01的簡介",
+                        "B-2": "這是B02的簡介",
+                        "B-3": "這是B03的簡介",
+                        "B-4": "這是B04的簡介",
+                        "C-1": "這件作品以「缺席的山」作為主題核心，實則不以形造山，而以葉喻山，借自然的微物暗示自然的宏觀。畫中沒有明確的山形，卻讓觀者感受到山的氣息。水墨潑染與染彩層疊的技巧，使畫面色感柔中帶澀、冷中藏溫。這些葉片像是地景的殘影，營造如記憶般斑駁的質地，使觀者以感知與想像重建心中曾經矗立的山景。畫面游走於抽象與現實之間，表達對時間流逝與無法復返之景的詩意凝視。",
+                        "C-2": "《諸事吉祥》將傳統語言的吉祥寓意轉化為動物意象的視覺敘事。畫中野豬昂首挺進、身軀厚實，氣勢十足，牠奔走於畫面之中，彷彿正穿越未知與挑戰，傳達「不畏險途，步步踏實」的精神意涵。結合書寫性的筆觸與東方美學的留白，使整體作品既充滿張力，又不失詩意。",
+                        "C-3": "本作運用水墨媒材的自由揮灑與濃淡層次，在黑白灰構成的低彩語境中描繪出個人自畫像的抽象面容。中央凝視的眼睛不僅引導視線，也暗示著觀看與被觀看的辯證關係；而上下筆觸的模糊與流動，使整體面孔介於顯現與消隱之間，如夢似幻。這種模糊與未定，正是對「畫畫是什麼」這一問題的視覺化詮釋。",
+                        "C-4": "這是一場對色彩最純粹本質的探索與凝視。作品刻意排除其他色彩的干擾，將藍色提升為唯一語言，讓情感、空間、思想皆透過「藍」來傳達。藍色既可深沉如海，也可輕盈如霧；它象徵冷靜與距離，也蘊含無限與自由，作品雖然只使用單一色調，極乾淨的藍色，以水墨暈染與筆觸節奏，建構出如夢似幻的視覺空間。",
+                        "C-5": "作品採用渲染與留白的手法，強調山勢的氣韻與空間層次，透過一抹淡彩點出寒木與小屋，展現幽靜的精神景觀。畫面聚焦於「靜」與「遠」的構成，畫中景物雖小，卻富含情境與象徵意義。這不是寫實的風景，而是關於心靈歸屬的象徵：「一方天地」，是與塵囂隔絕的棲身之所，也是畫家沉澱於大自然與自我對話的表述。水墨的疏密與虛實關係，構成空間的深度感；而無聲息落下的雪，恰好呼應畫面的留白，呈現悄悄然流逝的時間。簡約的筆墨構築出雪中山水的詩意意象，在寂靜的氛圍中傳遞深沉的精神探索，青藍山影與一隅孤屋，呼應老子《道德經》中「大音希聲、大象無形」的意境。",
+                        "C-6": "本作圍繞「宇宙流轉、萬象共融」的主題展開構思。畫家以簡練但層次豐富的水墨語彙，展現出宇宙中萬物共生與循環的意象。三隻海龜悠然遊弋於漩渦中心，彷彿時間、空間、生命的三元象徵，構成一幅動中帶靜、象外有象的哲思畫面。中央的漩渦象徵宇宙的起源、生命的循環、思維的中心。水墨的暈染與留白間交織出一種實並存的空間感，既具象又抽象，構成一幅兼具哲學深度與視覺張力的作品。觀者可自由遨遊於其中，體會海龜帶來的寧靜與力量，以及萬物間不可見但緊密相繫的聯繫。",
+                        "C-7": "宋朝蘇東坡出遊江西盧山西林壁，有感奇美山勢，寫下亙古七言絕句〈題西林壁〉：「橫看成嶺側成峰，遠近高低各不同。不識廬山真面目，只緣身在此山中。」本件作品運用筆墨彩繪四連屏，詮釋蘇氏這首作品意境，畫面丘壑縱橫，重重山巒茂林，讓人無法見到廬山全景，只見局部花花綠綠，觀山所見如此，分析事物本質亦是如此。創作者運用畫面中墨韻、點點江翠或嫣紅等等，暗喻讀者對事物的認識難免有一定的片面性；唯有冷靜觀察，才能認識事物的真相與全貌；又或，時轉換思維，望青天，另一種婉轉自然之美自然而降。",
+                        "C-8": "宋朝蘇東坡出遊江西盧山西林壁，有感奇美山勢，寫下亙古七言絕句〈題西林壁〉：「橫看成嶺側成峰，遠近高低各不同。不識廬山真面目，只緣身在此山中。」本件作品運用筆墨彩繪四連屏，詮釋蘇氏這首作品意境，畫面丘壑縱橫，重重山巒茂林，讓人無法見到廬山全景，只見局部花花綠綠，觀山所見如此，分析事物本質亦是如此。創作者運用畫面中墨韻、點點江翠或嫣紅等等，暗喻讀者對事物的認識難免有一定的片面性；唯有冷靜觀察，才能認識事物的真相與全貌；又或，時轉換思維，望青天，另一種婉轉自然之美自然而降。",
+                        "C-9": "《墨韻》是一幅順勢屏息融合東方意境與抽象節奏的作品，透過水墨媒材的文化意涵，傳達畫面中節奏、氣韻與情感的共鳴感。 《墨韻》不捨紙張孤單，故以墨為聲、筆為舞，捨棄具象形式，轉向視覺律動在平面上的探索。一動一靜的筆觸勾勒線條遊走於空間的節奏與氣息，彷彿墨色自身在宣紙上生長、對話與迴響，畫面中濃墨如重音、淡墨如和聲，留白則是音樂中的停頓，整體構成一段書寫之外的書寫。",
+                        "C-10": "畫面中的柿子，精簡構圖、錯落排列，引導視覺節奏，熟柿色澤明亮，象徵已實現的願望與收穫；而未熟的青柿則如人生中的未竟夢想，預示著希望與未來可能性。作品色彩飽和、形狀圓潤與墨色背景形成強烈對比，簡潔卻富含象徵意味的筆觸，呈現出一幅寓意吉祥的視覺詩。不僅喚起對豐收的聯想，更蘊含著生活中對平安與圓滿的祝願。",
+                        "C-11": "《築》強調建築結構的線條，強調心靈的建構與定位。畫面鮮明的橙紅與湖綠交織出抽象城市藍圖的輪廓，幾何造形如屋簷、牆體與線條錯落有致，形成既具秩序又充滿情感的視覺結構。然而畫作想呈現的是一種象徵精神上的建築行為—— 築一座容納記憶、情感與存在的內心之居，色彩的對比與線條的堆疊引導觀者思索，空間裡自我定位的依歸。",
+                        "C-12": "《窗》透過粗獷的墨線與幾何結構構，築出一種抽象但充滿張力的觀看場域。上下分割的畫面象徵不同的維度或境界，層層交疊的線條猶如時間的痕跡與思緒的流轉。若隱若現的圖騰形象在「窗」的視角中出現又消隱，使觀看不僅是對外在世界的探詢，更是對內在複雜心理的探照。整幅作品呈現出「窗」作為觀看工具與哲學隱喻的雙重意涵，引導觀者思索：我們所注視的究竟是外界的真實，還是自我內在的映射？",
+                        "D-1": "《青春嶺》以三層地景山岩、水瀑、峻嶺和光源構圖，作品著力以粗曠線條勾勒自然的巍峨氣勢，以秀緻卻利銳細線圈點山水性格。並巧妙解放單一視點，讓作品呈現山景的立體構圖，猶如塞尚筆下的聖維克多山所強調「藝術是與自然平行的和諧，而不是模仿自然」。藝術家以幾何創作自然風貌，在他一系列的山景畫，常以畫面進行幾何分解，並使所有形體保持自主性，卻又能與中心點保持自由的思考空間。這個邏輯顯示在層疊起伏，綠意蒼鬱山脈橫跨整幅畫面上方，呈現無限生命力。奔流而下的白色水瀑宛如青春的能量，為綠、黑土黃等等不同顏色錐體或柱體，導引視覺尋找右側陡峭筆勢所劈畫之山巔，由綠褐紅色多面錐體岩石組成。或許，現實的磨礪與堅毅心志時有牴觸、拉扯，畫家透過遠景的橘色山丘，柔和糾結，灑落一地希望。",
+                        "D-2": "《采菊東籬》一作以詩意入畫，取意陶淵明《飲酒》詩中之「採菊東籬下，悠然見南山」。這是一幅將詩意與日常融合的靜物畫，畫面中的菊花並非單純的植物描寫，而是一種精神的象徵——對自然簡樸生活的嚮往與實踐。作品致意向東方文人隱逸思想致意，將花草視為心靈的映照，將瓶中的菊花視為對塵世之外寧靜境地的想像寄託。菊花在中國傳統文化中象徵堅韌與高潔，在此畫作中，紅與黃的並置不僅傳遞季節的飽滿色彩，也映照著秋天的深邃與溫柔。整體色調既溫暖又厚實，帶有一種歲月靜好的沉穩。藉由瓶中花與淡雅背景之對比，畫面營造出一種靜觀與沈澱的視覺節奏，觀者仿若也坐於東籬之下，與花對話，與秋同在，遠離塵囂、返璞歸真的心靈境界。",
+                        "D-3": "這幅名為《Echoes Beneath the Surface》的作品，是指潛藏於情感與心靈深處的訊息與感受，被逐層解讀、被細細感知。畫面沒有明確的主體，卻處處留有暗示與痕跡，在沉默中捕捉訊息。《讀你》邀請讀者細細品味畫家以藍、灰、白色調，透過不同時間的反覆創作，不單是畫，更以不同技法刮或刷，企圖營造出如夢似幻的視覺氛圍之外，畫面宛如水面之下的意識流動，也似被時間沖刷過的情緒殘痕，層層筆觸如波紋般交錯、覆蓋，彷彿在撫讀某段深埋於內心的語言。",
+                        "D-4": "《Oblivion遺忘》是關於記憶失落與情感剝離的抽象凝視。以白、藍、灰三色為基調，在堆疊與刮擦之間展現一種時間腐蝕的質地，以「遺忘」是空白、斑駁、混濁、難以抹滅的存在，一種模糊而沉靜的情感狀態，彷彿記憶在時間與空間中漸漸被侵蝕與掩蓋，象徵遺忘的過程。畫面無具體主體，卻傳遞出深層的情緒與思緒流動，彷彿記憶在靜默中逐漸崩解。這幅畫不是對具體事物的再現，而是一種情感狀態的轉譯——遺忘在此不是消失，而是一種悄悄然蔓延的存在形式。",
+                        "D-5": "《拾二樂》是畫家展現平面藝術轉譯音樂感知的抽象創作，表達「兩人之間的樂章」，帶有音樂性與情感的共鳴感，簡潔又富詩意。透過宣紙、水彩和拓印技法探索旋律、色感與感官記憶的抽象性。《拾二樂( 一)》以橘、綠等主色鋪陳出如旋律般的結構，由序曲至高潮層層推進，色層與筆觸構築出無聲卻具節拍感的畫面節奏。《拾二樂( 二)》則延續主題，強調層次與聲響感，運用墨色與紅褐色交疊，營造如和聲般的沉穩共振，再以亮綠與粉橘如高音點綴，傳達一種短暫卻深刻的感官記憶和生命力!",
+                        "D-6": "《拾二樂》是畫家展現平面藝術轉譯音樂感知的抽象創作，表達「兩人之間的樂章」，帶有音樂性與情感的共鳴感，簡潔又富詩意。透過宣紙、水彩和拓印技法探索旋律、色感與感官記憶的抽象性。《拾二樂",
+                        "D-7": "本作透過'Echoes'呼應畫作中秋天自然景致與情感記憶的餘韻，'Autumn Grove'則保留季節與林野的意象，整體呈現一種詩意、寧靜卻富有深度的氛圍。畫面以濃烈的金黃與綠色層層堆疊，展現出秋季林野的深邃與斑斕，筆觸自由粗獷，營造出自然中光影變化與季節遞嬗的律動。金黃主色與尚存綠意交織，猶如韋瓦第作品《四季》的「秋」，象徵盛放與凋落的共存，也傳遞出一種在靜謐中蘊含力量的詩意張力。",
+                        "D-8": "畫名《同趣》隱含「共享生活節奏」的深層情感，畫中人物一同前行，寓意心靈互通。雙人騎行的橫向流動與畫面豎直視覺做出有趣對比，讓人產生動態延伸的感受。一近一遠創造畫面深度，人物線條簡練，筆觸不刻意追求寫實。明亮清爽色彩說明主題的愉悅性，以綠地與藍天營造出一種春日午後的舒適感，象徵生命力與自由。人物服裝使用對比色調——紅與白、粉與灰——表現性格上的差異與互補。整體配色既有活力，又富童趣，將作品主張輕鬆、溫柔的調性，完美詮釋。",
+                        "D-9": "歲月太美，在於它的必然流逝，就像春花、秋月、夏陽、冬雪都是大自然的生命現象。北風吹，雪花落，天地間彷彿少了奼紫嫣紅的喧囂，卻多了份純淨的寧靜。「雪」一直是東西方文人騷客藝文創作的絕佳素材! 大氣如李白曾語 :「應是天仙狂醉，亂把白雲揉碎」，一語道盡雪的可愛及詩意；而江天一色的銀色世界也給了柳宗元靈感，寫下《江雪》中的「孤舟蓑笠翁，獨釣寒江雪」。而清高宗嗜愛雪花寒送臘氣息，由董誥曾繪高宗御製癸巳仲冬二雪詩軸一作可見一般。這幅名為《雪兒》的畫作，冷靜的白雪與炙熱的紅背景交錯，形構強烈視覺節奏。以紅與白的強烈對比構成一幅詩意與情感交織的雪景圖。畫面中的林地枝幹筆觸奔放而簡練，白雪覆蓋在枝頭與地面上，彷彿時間靜止的瞬間；而背景那一片鮮紅，則為整幅作品注入了情感的深度與張力，透過紅白的強烈對比構築出內心世界的衝突與共鳴，又彷彿雪落人間，留下最純粹的溫度。",
+                        "D-10": "《春之祭》是一首視覺的交響詩，捕捉春天萬象甦醒的狂放節奏。整幅作品充滿濃烈、奔放的色彩，黃、粉、紅、藍層層交疊，宛如春雷乍響、草木齊鳴的生命爆裂瞬間。畫面無具體形象，卻帶有強烈流動感與節奏感，猶如俄國作曲家史特拉汶斯基創作《春之祭》的特色，一種混沌之中孕育秩序的祝祭之舞。這幅畫作的精神並非溫柔的春，而是既原始又野性的大地復甦，強調美學特點 : 一切事物的發生，都是突然的。看似隨興的筆觸，堆疊不規則形狀和無限重複元素，塑造春天愉悅的氛圍，其中充滿少女們的神祕圓圈圈，如春神揮灑色彩於大地，喚醒沉睡的靈魂。",
+                        "D-11": "畫面以濃烈的紅、橙、黃為主色調，層層堆疊光影與色彩，強調秋季如餘燼般的光影感受與季節的餘暉。斑斕的殘光既富詩意，又保有畫作中火焰、葉落與餘溫的視覺聯想。其次，畫中的樹與火象徵著自然循環中萬物終焉與再起，袋鼠化身時間，成為畫面中的核心，象徵自然和生命的流動及存在。",
+                        "E-1": "《赤焰》不為赤，也不為焰，而是強調畫中紅色火焰般的情緒、動作與張力，結合了身體、情感與力量的交織，'Blaze' 代表猛烈而炙熱的爆發，而 'Desire' 則帶出內在慾望或情感的燃燒。整體呼應畫作的情緒與視覺衝擊，探索潛意識中燃燒不止的本我慾望，結合存在主義與身體意象。",
+                        "E-2": "畫面以一排透明或半透明的瓶子作為主體意象，並以豐富色彩填充其內部輪廓，呈現出既分離又並存的情境。畫面下方的倒影更增添了漂浮與流動感。每一個瓶子像是一段封存的記憶、一封無法寄出的信，這些瓶子並列，看似重疊卻有保持距離，透過不同時間反覆層層覆蓋的肌理與色彩滲透，讓每個瓶子呈現獨特質感，象徵著沉默但渴望被閱讀的心靈，似乎，那些未曾言說的，靜待拾起。",
+                        "E-3": "這件作品運用鮮麗色彩和流暢洗鍊的繪畫技法，融入剪紙藝術，打破畫面寂靜，看似五彩繽紛，動感十足，卻也是創作目標的最佳寫照: 「發現事物本質，創造平衡、純淨和寧靜的藝術形式」。藝術家向雕塑家朱銘經典系列「太極」的精神致敬，傳統武術文化詮釋東方哲學的精妙―― 陰與陽，共生的智慧。然而，創作者文思貫穿東西，借鏡法國馬諦斯擅長的剪紙藝術，重新構造融合繪畫與雕塑語彙，將原本厚重的立體形體轉化為輕盈的色彩與面塊，象徵萬物動靜之間的智慧能量。",
+                        "E-4": "《花花世界》不只是靜物的集合，更像是個體經驗的容器，描繪人生百態與美感的繁盛世界。畫家深悟一花一草一世界，世界空如花草，將《華嚴經》所說 : 「佛土生五色莖，一花一世界，一葉一如來。」之意境，運用深藍、墨綠、碧青與琥珀黃，色彩鮮明而層疊，共同交織沉穩而不失流動感的視覺氛圍。自由的筆觸營造材質的肌理感，讓畫面如浮雕般立體。而觀者彷彿站在一處色彩繽紛的城市窗前——靜置的瓶子、盛開的花、微妙交錯的陰影與光感，將花花世界的日常風景提升為詩意語境的作品，讓人更在凝視中體悟——萬物皆有佛性。",
+                        "E-5": "《飛花令》以詩詞雅集中的即興詠花遊戲為畫作靈感，飛花令得名於唐代詩人韓翃《寒食》詩中的「春城無處不飛花」，為古代文人雅士飲酒時的「雅令」活動。畫面運用鮮明的對比色彩與三組花卉為主體，展現詩意的瞬間定格與生命綻放的片刻華美，整體畫面傳遞詩般節奏感與詩意寓意。綠色背景是一道無垠的詩牆，花雖在瓶中，卻有朵朵紛飛之意，讓人感受到文字與顏色在空間中共舞，短暫與永恆並存的詩意瞬間。而畫面中的筆觸強烈且具有方向性，猶如詩句的節奏與斷行，讓人心生吟詠之感。",
+                        "E-6": "畫面中紅、粉、黑、白交織詩意的情感氛圍，讓「思慕」融合了柔情與深意，強調對人的掛念。炙熱如熾的橙紅底色，詮釋情感高張的背景；而粉紅柔軟了內斂的情感核心；黑白筆觸則保留了「思慕」的情感核心。瓦楞紙的線條隱約牽動思緒，如碎片般垂直流動，若隱若現地交錯，側寫李清照《聲聲慢．尋尋覓覓》中的思愁。",
+                        "E-7": "白居易以「花非花，霧非霧。夜半來，天明去。來如春夢無多時，去似朝雲無覓處。」道盡人生中某種難以名之的悵惘－－那些失落的美好，非花，非霧，如春夢，如朝雲，雖然手裡抓不住，卻在心底留下了記號。畫家借花之形質，引發作品對表象與本質的思考。這些「花」並不遵循自然的輪廓與比例，宛如花的記憶，或是對花的抽象想像，是一種無常與虛實交錯的狀態，也是對「存在」與「幻象」界線的探討。",
+                        "F-1": "畫面以清冷、靜謐藍色為主調，採用幾何構圖，以七巧板的結構拼出既獨立又富靈性的貓科形體，坐姿筆直、神情專注，正靜靜觀察世界。背景以對角斜線不斷交錯，形成強烈的複雜感，而藍色除了加深視覺的哲思感，又襯托出主體的沉穩，強化畫面一動一靜的對比意象，最終，在貓科的「凝視」中，點亮作品的靈魂。",
+                        "F-2": "畫作以「火鳥」與「青春」象徵勇敢、自我尋找與情感解放，更試圖捕捉那瞬間即逝卻深刻震撼的生命狀態。畫家筆觸自由狂放、毫無保留，不求精準輪廓，透過如火舌般流動的顏色，用鮮明的對比色，直率地揮灑出內心熾熱情感烈焰。如同一場青春儀式，火鳥正於焚風中破繭而出，揮灑一片混沌與光芒交錯的能量場，見證生命能量與蛻變的過程。",
+                        "F-3": "四隻猴子成一橫列，構成類似「警示標語」的構圖。輪廓簡明，筆觸流暢帶有塗鴉與漫畫式的誇張感。紅色強調暴露與警訊，是警告，也可能是傷害的象徵。黑色背景將猴子形象從現實中抽離，放置於象徵空間中。畫家以孔子的「四勿」——「非禮勿視，非禮勿聽，非禮勿言，非禮勿動」及印度甘地的三猿——「不見惡事，不聽惡詞，不說惡言」為母題，以畫面中「第四隻猴子」為詮釋「非禮勿動」的表徵，也說明當代人無法停止觀看手機的現代意象，諷刺當代資訊時代中的道德遺失與感官麻木。「非禮勿動」原本為儒家警語，今則轉為對獵奇資訊的選擇性忽視，甚至沉迷。第四隻猴子手中高舉手機，對比前三隻猴子遮耳掩目，猶如時代的新象徵——我們或許閉眼閉嘴，卻從不停止點閱與轉發。",
+                        "F-4": "這幅畫的名稱強調了貓咪的王者氣息與牠那不容忽視的表情與氣場。幽默、誇張又細膩的筆觸描繪出一隻神情嚴肅、面容圓潤的貓咪。牠既像是霸氣十足的王者，又帶有幾分孩子氣與任性，令人忍俊不禁。色彩上，金黃的毛色與藍紫背景形成強烈對比，更加地突顯主體的重量感與存在感，也讓觀者不由自主地聚焦於貓的雙眼，冷峻卻充滿個性，那裡彷彿藏著情緒、故事與一種不容忽視的態度。",
+                        "F-5": "這幅名為《黑色小鴨》的作品，以童趣構圖與明亮色彩描繪一群白鴨整齊行進於花叢間，隊伍最後的一隻黑色小鴨則突顯其獨特與孤立，成為畫面的情感焦點。又寓意探討差異、自我認同與包容的議題，在溫暖氛圍中展現對異質存在的溫柔凝視與接納。",
+                        "F-6": "作品描繪北極熊母子緊密相擁，面露安心與喜悅的畫面，傳遞生命本能的愛與依賴，創造無償的溫順與安全感。簡潔圓潤的線條勾勒熊的輪廓，筆觸柔和且帶有些許水墨感，讓畫面更顯溫潤。湛藍與柔白表達純淨與安寧的愛，藉此襯托親密關係的珍貴，讓整體視覺詮釋兩個生命相遇，在彼此的懷抱中取暖與依靠。",
+                        "F-7": "作品描繪身穿斑點睡衣的兒童與斑點狗彼此凝視與交流的瞬間，他與狗不只是外在圖紋相似，更像是靈魂上的鏡像，不以語言為橋，但以心靈共振的方式建立起深刻的關係。畫面因顏色而製造出空間深度與溫度感的平衡，孩童與狗身上的黑白斑點一起節奏畫面，筆觸呈現童趣的插畫風格，流露畫家性格。而孩童正笑著向狗伸出手，狗也回以微微探頭與吐舌的姿態，兩者互動充滿和諧與溫暖，呼應主題——「同路人」。",
+                        "G-1": "這幅作品《變形記》以強烈對比與不規則色塊構成游移在空間中充滿律動與衝突的視覺語言。作品抽象又撓富哲思，每一塊色面都有其獨立性，形似感性旋律，在整體節奏中彼此交織，拆解和蘊育不斷地重複，讓生命得以不間斷地昇華。《變形記》一作詮釋畫家所秉持的哲理——「未窮先變、勇於突破，生活中的每一刻都蘊含轉折的潛力，放下自我設限，拓展自己的可能性。」強調唯有不斷地尋思突破現況，新的結構與認同不停地更迖，方能產生思想轉化，呈現無常、變動與時刻創新的存在狀態。",
+                        "G-2": "畫面留下的不是一場靜謐的書寫，而是由自然、色彩與情感交織錯置的詩性混亂，猶如花神醉後留下的頁面，原始與再生同時存在。畫中筆墨暴衝、顏色溢流、交錯，構造既浪漫又侵略的性格：喧囂、繁複、卻又在混沌中帶著節奏語感，令人無所適從。藍或綠被桃紅過度糾纏，壓抑，偶爾浮現；朵朵花花與色彩交纏、錯漏、重疊，畫面不再尋求完整敘述，而是一場有意的錯寫，一切都在畫家刻意讓「意外」成為生命與真實的詩意表現中。",
+                        "G-3": "This is not a painting to be viewed.It is to be entered.A book of fire, written in verdant breath.Each line a disappearance. Each color, a secret.綠焰並非毀滅性的烈火，而是轉化與能量的象徵，畫面中盤旋生長的色彩與線條，猶如古老語言的書寫，象徵生命經驗與感知被層層記錄。畫面透過燃燒與崩解，展現一種詩尚未寫、但語感已爆發的狀態，無明確的中心，彷彿一場書寫中的混沌儀式。而色彩如火舌般撲擊，卻又潛藏秩序的韻律。帶動靈魂律動的綠色讓輪廓不拘泥於形體，而是思維的軌跡；紛飛的金橘火花引人探訪詩意與神祕，卻與漫舞的、冥想中的藍色寧靜泉源相遇。",
+                        "G-4": "《桃紅陷阱》是一場色彩與感知的謀略遊戲。它以「甜美」為誘餌，透過高飽和的桃紅色調，構築一種視覺上的誘惑與干擾，在花俏與混亂之間尋找秩序，卻總在邊界游移、迷失。桃紅主導整體視覺，是鮮明的焦點與網絡；橘色、螢光綠、紫紅、亮黃等顏色則如副歌般穿插其中，形成近乎躁動的節奏。使觀者無法安住於單一視覺焦點，而被迫在混沌中尋找秩序。底層的墨灰與苔綠提供深度與反差，使桃紅如捕獸之網從背景中浮現。畫面由大量纏繞的滴流線條構成，筆觸自由奔放且帶有結構性，如同陷阱的網目──不規則卻具策略。色塊之間的交錯彷彿某種代數式佈局，乘載節奏的重量、情感的烈焰與隱喻的神祕。每一條顏料似在製造視覺節點，讓觀者的眼睛被不斷地牽引、跳躍、迷失，畫布不再是靜止的，而是無處發洩的詩意潛流。",
+                        "G-5": "《風吹的願望》是一場關於釋放與希望的藝術演繹。以鮮明奔放的藍、綠、黃為主色調，交織出如風般自由奔放的節奏，色彩間的撞擊與融合營造強烈而自由的律動感，如同願望在風中放飛，無拘無束地穿越時空與邊界，彷彿是無所不在的流動能量，牽引著色彩軌跡，跨越理性與形式的界限。",
+                        "G-6": "作品《玫瑰之吻》以深沉如密語般的紅與火焰交錯的結構，玫瑰在這裡不再只是柔美的象徵，而是象徵被烈焰灼燒親吻的記憶與真理，象徵派詩意轉化為流動的視覺語言。《玫瑰之吻》以非對稱式層層堆疊結構展開，透過滴流、劃線、平塗和衝撞筆法，交錯構築爆裂與糾纏的力量，激起作品生命內在激情與祕密意志的對話。白色筆劃以飛躍之勢貫穿畫面，像是企圖重建秩序的絲線，在混沌之中勾勒出新秩序的雛形。畫作寓意著渴望與毀滅的共生，猶如在靜默中燃起的愛、痛、祕密誓言與啟示——呼應古拉丁「sub rosa」之誓，在烈火中守口如瓶。",
+                        "G-7": "《彼時此刻》透過線條追尋時間和聲音在空間中的哲學美感，而非歷史的痕跡。每一道漩渦，像是某個時刻的殘響；隨興且色彩繽紛的圓形、螺旋、交疊線條，宛如微風的親吻，掀起一湖藍綠不平靜的漣漪。淺粉與白線勾勒作品詩性，呢喃如夢境邊緣的聲音，既柔和又抽離。畫作讓人感受到「詩未說完，餘音回盪」；又彷彿無言的韻腳在色彩間沉睡，如水中倒影輕吟，彼時此刻詩與形交融，謐靜、波光，既漂浮又浪漫。作品巧妙地回應馬拉美(Stéphane Mallarmé，19世紀法國象徵派詩人)的創作觀——「詩」非追求實體描繪，而是召喚作品深層的「空白、斷裂與漂浮」靈性。",
+                        "G-8": "《如詩之形》探索詩性不再侷限於語言的線性，而是以色彩與形體織構出的視覺詩篇。畫面彷彿捕捉了詩句甫被書寫的瞬間——詩不是由文字構成，而是色彩、線條和形體。飽和的色彩猶如炙熱的創作情感，對比冷色，是沉思。透過強烈的色調構圖，敘述創作思緒如詩句間的節奏與呼吸，時而炙熱，時而冷靜。作品筆觸自由灑落、層層覆疊，如同破碎的詩行交錯編織。色彩不拘形式，恣意蔓延，模糊了詩與畫的界線。畫面沒有中心，時而隱含強烈的動態秩序，然而無言的韻腳卻在色彩間沉睡，如水中倒影輕吟，猶如一首詩在天地間，默念。",
+                        "G-9": "這幅畫是光的織布——筆觸灑落、滴流、拉扯、碰撞、斷裂、延續和交疊，作品以「光與感知狀態」為表述。每一線條象徵光束的聲音，層層飛舞、交纏，導引思緒游移在光束與顏色交織的呼吸中；紫與螢光橘的若隱若現，是詩意的脈搏，跳動在光線與色層之間。 一切讓人無法定錨目光，視覺只能隨之漂流；一場光的書寫，既混亂又失序，卻造成另類光束聚生的美感，又彷彿在某種神祕儀式中，捕捉思緒生成的剎那!這裡沒有光，卻充滿感知；沒有內容，卻滿溢形式的詩意。",
+                        "G-10": "《夜之脈動》以墨黑的背景暗寓深夜的混沌，似波特萊爾筆下的墮落深淵，而畫家善變的巧思，在灰燼中點亮閃爍；無處安放寧靜的霓紅、橘紅與亮黃殘光，如花蕊綻放。不妥協的思緒、躊躇的意識就在衝突，叫囂的色彩中，隨著壓抑的筆觸，進入「暗中綻放」的冥想。《夜之脈動》是一場對內在生命的靜默頌歌。它既非白晝的光明，也不是純粹的黑夜，而是日與夜的曉明過渡時刻──彼時，萬物色彩彷彿沉入土地，又悄然在某處燃燒。",
+                        "G-11": "這幅作品《人生這一味》透過靜物畫的簡約造型與鮮明對比色彩，描繪象徵意味的水果組合。水果不僅代表味覺上的多樣性，也暗喻人生中的多重經驗與情緒滋味。盤子外圍是混合的橄欖綠與深黃背景，形成一種穩重卻略帶不確定的氛圍，如同生活的基底。畫面看似靜物，實則蘊含人生的酸甜苦辣與層次感，展現一種以日常為載體的哲學思考。",
+                        "G-12": "這幅作品《舞者》以極簡白色曲線描繪抽象的人體律動，在純淨藍色背景中展現一種如波般流動的姿態，輕盈而有力，一種集體又彼此獨立的律動感，以及個體在空間中自由延展的生命力。藍白裸體作品〈舞者〉是畫家邁向抽象之旅的一個決定性階段，猶如馬諦斯創作〈藍色裸者——Blue Nude I〉之精神，從中雖然略見人體外型或粒線體的表現，卻無法掩飾畫家一直以來追尋的「形」與「色」關係，二維形式在《舞者》不同厚度的藍色中，得到完整詮釋。",
+                        "H-1": "這幅作品以兩位穿著繽紛花裙的女性為主角，背景則是帶有植物與葉片圖案的繁複紋樣，形成一種「人與自然」、「衣與景」相互交織的視覺語境。作品描繪的不只是女性穿著的外表，而是透過花裙的意象，暗喻她們內在的生命力與文化背景。鮮亮的紅、綠、藍等對比色，強化了視覺上的節奏與情緒，也讓人物的存在感在如繁花般的背景中脫穎而出，營造一種活潑卻不失深度的色彩敘事。作品以輪廓清晰的描線與平面化構圖，使人物與背景並非主從關係，而是一種融洽共處的視覺語言。畫作充滿異國風情與詩意文化的空間，這些穿花裙的女人，沉靜地站立，卻散發出無聲的存在力量。",
+                        "H-2": "生命長河，人人是過客、旅人，畫家以極簡俐落線條描繪嘴上叼著煙斗，而背景渲染如迷霧，襯托旅人沉思與孤獨的氣質，帶著憂鬱與歷練的眼神，是一種對時間、經驗與記憶的凝視。白色線條如刮刻般銳利，造型簡約卻具力量，強調形象中的象徵性。「旅人」身處片刻靜思中：歷經風塵、心思內斂，彷彿正思索遠方的意義。那支煙斗像是一種儀式性的陪伴，也象徵了思考與沉靜。",
+                        "H-3": "《聘婷》刻畫了女性搖曳姿態，在自信與柔美之間，展現內外兼修的優雅與力量。畫中人物不僅以曲線與姿態體現動勢中的韻律，更傳遞了「身體作為語言」的觀點。畫作中的《聘婷》之作並非表象美，而是來自內心修練，一種綜合自我意識、身體語言與生命光彩的融合體，表達出現代女性在柔性與堅毅之間的自我掌握。",
+                        "H-4": "畫面以深色背景突顯主體，女性面容沉靜堅定，層層疊加的金屬頸圈成為文化標誌與視覺焦點，象徵傳統、力量與美的交融。人物的姿態與神情傳達出尊貴與內斂的氣質。畫家使用黑色背景襯托主體，使人物的膚色與金環更加立體鮮明。膚色為層疊斑斕的赤銅、赭紅與金黃，象徵著土地、歷史與內在能量。金屬光澤突顯尊貴，也加強視覺的張力。靜謐的少女立於黑暗中，寧靜卻充滿能量，既是對文化的致敬，也可能是對束縛的挑戰。她站在傳統與未來的交界處，以無聲之姿述說自身的故事。",
+                        "H-5": "為了呈現塔羅夫人的占卜、心理分析和靈性探索角色，刻意讓畫作帶有幾分神秘感。畫面藍、紫、白色交織如通靈般的冷調意象，人物身著繁複花紋的服飾，臉部表情淡然疏離，寬緣白帽壓住一抹陽光，而目光如霧，加深塔羅夫人通透未來又保留無盡祕密的特質。",
+                        "I-1": "深邃的綠與藍形成夜空與大地的沉靜背景，而人物的紅與黃服裝成為畫面溫暖的焦點。月亮的銀白則為畫面注入神秘與情感光芒，形成情緒上的強烈對比。畫面簡潔構圖，讓情感集中於人物與月亮之間的視線連結。筆觸則帶有油畫般的厚重與柔滑，既寫實又富有詩意，使畫面彷彿介於夢境與現實之間，營造時空凝止的氛圍。戀人面向月色，靜靜地感受那份深情，曾經。",
+                        "I-2": "這件作品構圖透過兩張臉交疊的形象，描繪出一種心理層次與自我認知的複雜狀態。人物的雙面視角與不對稱的表情象徵著內心的矛盾、自我懷疑，或是他人眼中的多重形象。強烈對比的橘紅與冷灰，象徵自我衝突的兩面，既模糊又不穩定。五彩紙的背景渲染有如猶豫，進一步加強「看似接近卻又難以解讀」的個體距離。",
+                        "I-3": "這幅作品以中國傳統門扉為主體構圖，兩扇朱紅色的門上裝飾著五個象徵「五福」的圓形銅飾與一對獅首銅環門環，象徵著力量、守護與吉祥的門面意象。畫面中心的雙門環構成畫作的視覺核心，如同進入某種精神或文化空間的儀式性入口。「五福臨門」本為吉祥語，代表長壽、富貴、康寧、好德、善終五種圓滿的祝願。畫作以現代抽象筆觸與傳統意象融合，使這道門不只是家宅之門，更象徵人與命運之門、過往與未來之門。",
+                        "I-4": "畫中少女仰首向前、頭頂水壺，優雅的姿態與巨大的金色耳環構成視覺焦點。人物佔據畫面大部分，左側輪廓誇張而自由，線條帶有裝飾性與符號感。筆觸粗放又具有節奏感，膚色與背景同為濃烈的桃紅色，彷彿將人物融入文化的血脈與生活節奏之中。細節如耳環、頭巾與水壺上的圖紋，展現強烈的非洲民族文化，整體構圖帶有非洲藝術風格，作品傳遞的不是具象的肖像，而是文化的縮影與精神的象徵，傳統與當代非洲女性力量的詮釋。",
+                        "J-1": "畫作以近乎變形的臉部特寫為主體，強烈交錯的筆觸刻劃出皺紋、眼神與表情的複雜交織，彷彿是一位經歷無數風霜的說書人。他的眼神既空洞又深邃，像是看穿塵世，也像是隱藏著無盡寓意。他不是單純描繪人物，而是轉化成一種「象徵性形象」：傳述智慧，也默默承受時代的經驗。畫面中運用大量橘紅與焦黑的顏色，營造一種烈焰中淬鍊出的經歷，象徵生命的灼熱與記憶的沉重。白色與藍灰色的筆觸，則為這張面孔帶來如骨般的清冷感，彷彿寓言中的真理總帶點殘酷與警示。",
+                        "J-2": "作品中的〈戀〉是一種深藏於日常自然中的默契與愛戀，如林中月光般靜靜灑落的情感。整體以靜謐的綠藍調為主，象徵自然、安穩與永恆，而點綴的月光與花草色澤則成為愛的微光。構圖以垂直的樹幹與垂直的人影呼應，營造出視覺與情感的對位結構。透過色彩與空間的延展，在看似空曠的林中，愛情被框入一種極為內斂的靜美情境，不依附言語，而深藏於環境與身影之間。畫面營造一種「愛不語卻深藏」的氛圍，一份不需言說的情感重量。",
+                        "J-3": "《論語・雍也篇》說：「知者樂水，仁者樂山」，畫作呈現山水和「下近上遠」的構圖，建構整幅畫的軸線隨著人物的凝望一路延伸，強調孤寂感。並寓意智慧仁德者在沒有掌聲的旅途上，不畏懼孤獨，依然選擇在堅守信念的道路上前行。《孤勇者》透過厚重的黑與明亮的黃構築強烈的視覺對比，背影孤立於高地之上，整體畫面簡潔有力，卻如詩般展現孤獨的堅定姿態。這件作品不描繪悲壯，而是傳遞一種向內凝視的勇氣。孤勇者不為掌聲，也不為同行者而前行，而是為了回應心中那個不肯沉默的聲音。黃底的明亮猶如信念之光，而黑色線條勾勒出的世界，是風景也是障礙；在這之間，孤勇者並非迷失，而是清醒地選擇了這條無人之路。",
+                        "J-4": "這幅畫呈現一名女子牽著黑狗，走在蜿蜒黃色林道上，色塊平塗與柔和色調強化了綠意盎然森林的靜謐氛圍。而紅衣女孩和忠狗自然親暱的關係，在清晨或午後的光影裡，展現一種不被打擾的獨處時刻，營造出童話般的純真愉悅又寧靜的氣息。作品像是一首輕快的散文詩，低聲述說著對日常小確幸的珍視。",
+                        "J-5": "作品透過臉部的分割構圖表現「叛變」主題，代表人格或關係的背離與矛盾。畫面由兩張相對而疊合的臉構成，似乎是一體分裂出的兩種情緒或意識。左側面孔隱入陰影，表情冷凝、模糊，右側則較為清晰明亮，眼神批判又疑慮。畫家巧妙運用筆觸質感，呈現出人物內在的裂痕與衝突，象徵著忠誠與背離、信仰與懷疑之間的激烈交鋒。",
+                        "J-6": "畫中人物赤裸雙臂、頭髮鮮紅，眼神直視觀者，呈現女性內心澎湃的生命能量，以及不被馴服的叛逆感，飾以白衣寓意告白般的詩意氛圍。背景以抽象色塊堆疊，營造出情緒激昂、思緒翻湧，大量的紅橘色象徵女性生命力、情緒澎湃與未經修飾的真實自我。作品表達燃燒年華的躁動靈魂，告知青春如火，灼熱中",
+                        "J-7": "畫作以疫情間口罩與物資曾經極度缺乏為創作題材，畫面描述兩位身形瘦弱男孩、姿勢緊縮，肩膀微聳、手指緊攏，極具壓迫感，戴著以橘皮自製的口罩，緊靠在一起，眼神中流露出驚懼與脆弱。整體色調以冷灰與橘紅對比。蒼灰的肌膚與陰鬱的藍灰牆面暗示著壓抑與病態世界的籠罩；而鮮紅的口罩則象徵著痛苦與存活意志之火，突顯了疫情時代的焦慮與掙扎，世界被時代鎖困。",
+                        "J-8": "畫面以七巧板幾何圖形組合構成主體，呈現出立體又富童趣的視覺形式。每隻喵喵的朝向與姿勢皆不同，創造出節奏與變化，使畫面充滿故事感。飽和的紅、黃、綠色調拼出不同性格的貓形，以強烈對比的色彩劃分彼此的獨立性。背景則以深紫灰構成城市天際線，說明七巧喵喵與城市的社群關係，擬人化的佇立與彼此方向的呼應，呼應畫家創作寓意，牠們彼此陪伴，卻各自沉思，是都會節奏下緩慢與親密關係的最佳詮釋。",
+                        "J-9": "畫作像是一種視覺冒險， 引導觀者走入熱帶植物林的幻想之境。飽滿的綠色為主軸， 描繪出大片闊葉、棕櫚、果實與花卉交錯的熱帶植被。其中紅色荔枝果實與亮黃花瓣從中點綴而出， 而紅色瓢蟲雖小， 卻指揮這場盛宴， 點亮森林中未知的符碼。畫面背景以湛藍曲線構成水紋或天空的流動感， 為整體畫面注入神祕而清新的氣息。細密的線條勾勒葉脈與紋理， 層層堆疊形成視覺密度， 結合自由奔放的顏料筆觸，畫面結構近乎垂直式展開， 讓觀者如同置身森林中， 又彷彿自上俯瞰一場魔法場景，使觀看充滿探索感。",
+                        "K-1": "《告白》以極簡黑白色調為基底，透過密集的筆觸與重疊的材質處理，讓重複的直線與刮痕般的筆觸交錯，呈現若隱若現的能量流動與時間軌跡，營造出如雨幕或記憶流洩的感受。又，畫面中央的白色交錯筆痕，如光線般穿越混濁，告白的情緒以抽象視覺元素拆解再重組，創造出既疏離又親密的視覺體驗，引導觀者沉浸在一場抽象情感的探索之中。",
+                        "K-2": "《人生習作》以鉛灰色調描繪一張滄桑的面孔，呈現出人生如草稿般，不斷修正、不斷摸索的過程。低飽和度的色彩隱含內斂的感情與哲學性的沉靜。筆觸多為擦暈與細線勾勒，呈現層層堆疊、未定稿的視覺效果，恰如「習作」的精神。細節處不求鋒利，而以柔化線條模擬時間與記憶的流逝與交錯。畫面重疊的人臉輪廓，象徵人一生中不斷變換的角色，也反映記憶的疊影與時間的刻痕。作品不強調完美，而是著重於「未完成的真實」，呼應人生從不止於一次定稿，而是由無數次嘗試與修正組成。",
+                        "K-3": "He wagers silence for truth,calls his own bluff in the dark.《自槓》原為麻將術語，意指打出自己可以胡的牌，象徵錯過機會、自我阻礙，甚或是與自己作對。畫中人物帶著頭燈與眼鏡，眼神堅定卻帶有懷疑，既像是礦工，也像是與自我拉扯的人。飽和的橘紅，強烈而焦躁，如他眼神所透露的內心糾結與矛盾。畫家刻意用筆厚重粗率、輪廓明顯，對比背景，反映強烈的主體意識與內在的掙扎。",
+                        "K-4": "He walks beneath the earth,where names are lost to dust,and only silence remembers him.畫作題名《渡無人》強調一種孤絕與遺世的情境——這位人物似乎正走過生命或社會邊緣的一段旅程，卻無人為他照路、引渡，他成為時代沉默的見證者。臉龐滿是歲月與沉重痕跡的礦工，帽燈暗示著他所處的幽暗環境與工作性質。面容上的橘紅與藍紫筆觸，眼神閉合或低垂，盡顯靜默中的沉思與疲憊又蘊藏心境未竟的掙扎，低飽和度色彩則突顯人物向來的孤獨與堅毅。這幅畫像是生命的底層記事，畫家筆觸強烈且粗獷，點出作品的原始感性，寫下礦工的生命經文。",
+                        "K-5": "《能言善道》以誇張與扭曲的人物造型，描繪出一位表情豐富、雙手比畫、語勢充沛的狡黠說話者形象。他可能是一位辯才無礙的演說家、詭辯者，抑或是一位慣於以言語影響他人的人物。鮮明綠色烘托出人物的活力，而人物衣著的筆觸揮灑豐富的色彩，象徵語言中蘊含的層層情緒與複雜性，增添幾許非真實性。",
+                        "K-6": "畫作取材少女情懷，大膽畫作詮釋李清照《點絳唇》意境：「蹴罷鞦韆，起來慵整纖纖手。露濃花瘦，薄汗輕衣透。見客入來，襪剗金釵溜。和羞走，倚門回首，卻把青梅嗅。」畫中少女宛如李清照初次見到趙明誠，情竇初開之狀，回眸偷覷趙明誠，爲了掩飾自己的失態，強按心頭的激動，故作嗅着青梅，嬌羞怯怯，暱人無邪。綠、黑和飽滿的線條強烈襯托少女溫潤肌膚與絳紅色嘴唇。紅唇欲言又止，聚焦整幅畫的情感；臉上浮著羞紅的光暈，如晨曦染霧，不知所措的雙手微放，似乎想將自己藏進身後的寧靜裡，隱藏失態。而目光凝視，將少女懷春、略帶羞澀的情懷表露無遺。",
+                        "K-7": "這幅畫鳥群以輪廓清晰的描邊方式表現，帶有漫畫式的強烈視覺節奏；背景則使用濃烈、粗放筆法形成動態張力，為了強烈表現「群體中的孤獨」——將孤獨置於極度熱鬧的場景中，呈現出一種情緒與心理的悖論感。畫面充滿象徵性，是一則視覺寓言。構圖漆黑的鷺鳥醒目地站在白色鳥群之間，顯得不同又孤獨。背景利用極具衝擊力的紅、綠、藍、黃交織的色塊，加深黑鳥身處熱鬧卻內心隔絕的情境，使得這份「孤獨」過於喧囂，也映照靈魂深處最真實的自己。",
+                        "K-8": "聖嚴法師曾說：「得心自在: 心自在，身自在。身心自在，福慧自在。」畫家感觸佛法啟迪人心，以柔和曲線與溫暖飽滿的色彩語彙，描繪人物靈魂安定與自持，內外和諧的境界。畫中人物身心姿態鬆柔如舞，彷彿與天地融為一體，心無罣礙，傳遞心自在是「無智亦無得」的觀自在狀態。紫與黃的相遇象徵靈性與生命力的交融，至此，作品已無須其它裝飾，純粹淨化之感溢於畫面。人物閉眼凝思，彷彿聆聽內在的節奏。整體氛圍靜謐而不冷峻，柔和而不沉寂，觀者也被邀請進入「自在」的瞬間之中。",
+                        "K-9": "畫作以凋零的樹木為主體，刻畫秋末冬初枯葉落盡後的靜寂與餘燼感，畫家蘇一仲以敏銳的色調和筆觸道盡枯寂，抒情時間與愛情；這份詩意也盡寫在法國詩人Jacques Prévert筆下 : Les feuilles mortes se ramassent à la pelle, Les souvenirs et les regrets aussi。(堆疊的枯葉猶如回憶和遺憾) 而音樂家Johnny Mercer也藉Autumn Leaves抒情，成了爵士經典。畫面由上至下過渡從冷冽的藍、轉為橘黃與嫣紅，形塑落日餘暉穿越林梢、映照地景的幻境。排列的樹幹節奏畫面，枯葉斑斑如同無法揮去的記憶，葉落的旋律如同低迴的法國香頌，微風呢喃輕輕訴說離別的情感，創造作品既蒼涼又浪漫的靈性。",
+                        "K-10": "畫家蘇一仲喜愛以畫作闡述菩薩的慈悲，《吉象吉相》這件作品他選擇代表力量與和平的「獸中之德者」——大象為分享「佛恩」的主題。大象在東方文化中被視為高貴、長壽、智慧和財富的象徵；在宗教信仰上更富含悲天憫人的涵義，如菩薩化為象子形，或佛陀曾是「六牙白象王」，捨己為人布施自己的象牙，又或普賢菩薩乘《六牙白象王》示教利喜等等。畫作以深具詩意的姿態捕捉了女性與大象之間寧靜而溫柔的交流。畫面中女性柔美地輕倚溫厚的象，閉目傾聽佛音，神情安詳愉悅，遠離塵囂；而大象亦以低垂的鼻子回應她的信任，背景的大面積暖黃，使畫面氛圍更加詳和，意味著在佛的世界裡慈悲是唯一。",
+                        "L-1": "以花卉靜物為主題，運用高彩度黃色，搭配粉紅與紅橙調，將鮮豔濃郁色彩與層層堆疊的筆觸，營造出一種幸福洋溢的氛圍。畫中每一朵花甜蜜蜜含笑，每一層次自然，又恰如其分的疏鬆，結合點狀與塊狀疊塗，創造出一種既快樂又浪漫，繁中有序的視覺節奏，整體畫面充滿生命力，宛如一首愛的視覺情歌。",
+                        "L-2": "畫面中人物造型延展拉長，面部線條刻意不對稱，帶有表現主義式的心理張力。女子頭戴深色帽飾，目光空洞又若有所思，手勢欲言又止，將內心的疑惑與掙扎表達於「自我懷疑」與「情緒未明」的狀態。五彩紙狂放的紅、綠、黃斑塊堆疊強調不安與困擾，色彩與人物表情冷調形成強烈對比，凸顯人物內在世界的洶湧思緒。",
+                        "L-3": "這幅作品《一步之遙》以明亮熱烈的紅橙色調包覆一位頭戴寬沿帽的女性，若隱若現的面容，藏著仕女堅定、冷靜的眼神。雖予人窈迢淑女，君子好逑之寓意，但奔放明豔的的背景色彩和人物所著的粉紫黑色，更彰顯畫家想呈現的親近與疏離感。整體畫面的不真實感喚起電影〈女人香〉配樂〈Por Una Cabeza一步之遙〉的探戈樂風，節奏與視覺間難以捉摸的曖昧與模糊界線。",
+                        "L-4": "這幅畫捕捉了一位手風琴演奏者靜心彈奏的瞬間，以簡化的人物、符號化的形體呈現，搭配明亮強烈對比的色塊藍、綠、粉紅與橘明亮，讓畫面充滿青春氣息，傳達音樂的節奏性與感情厚度。創作者不僅描繪了音樂的動作，更傳達了情感與時間的延展。手風琴在此不只是樂器，更是時間的容器，隨著雙手的伸展與壓縮，樂聲唱著未央之歌。",
+                        "M-1": "畫作《觀自在》源於畫家虔心修習佛法，創作觀世音菩薩像，提醒自己時刻不忘「內觀自性，達到自在」與「應無所住，而生其心」的慈悲智慧，展現人文關懷境界。作品構圖大氣，局部特寫構圖僅呈現半臉，象徵內觀與省思，他以抽象手法呈現佛性，超越形體而具象精神。此外，用色溫潤、交織象徵神聖、智慧、光明的金黃與赭色，散發沉靜安定的氛圍。光影之間的過渡，說明覺悟的過程不是一瞬間的閃耀，而是緩緩流轉的沉靜光芒，每一道白線則加深佛對世人的靜候與恩典。《觀自在》呈現佛的世界中超脫言語的寧靜，讓人深深覺知與靈性安住，也讓個體從紛擾世界中抽離，回歸內在的平靜與慈悲。菩薩垂憐的目光，凝視萬象，沉靜而深邃，解脫人生一切苦樂。",
+                        "M-2": "畫家以最簡約和純粹的筆觸描繪《人之初》，藉由簡明流暢的線條，無筆鋒與陰影堆疊，呈現「初始」、「本質」與「純真」的存在狀態，讓焦點集中在黃色線條形體本身的象徵意義上。鮮亮藍綠的背景使得整體構圖開闊、平靜，無贅物填充，形象懸浮於視覺中間，彷彿將人置於宇宙初始或生命原點。回到人類認知的起點，沒有過多情緒與裝飾，僅以清澈背景與明亮輪廓，召喚「赤子之心」的凝視與省思。",
+                        "N-1": "畫家將《孤城萬仞》的山勢傾斜延伸而上，猶如巨石堆積，刻意打破水平線與常規透視。粗獷的筆觸造就氣勢磅薄的山岩，塗抹與潑灑的色彩畫破孤城天際!時間就在線條與色塊彼此交錯堆疊中，醞釀日暮時分的山巒。《孤城萬仞》寓意在這萬仞之高，山勢如刀削斧劈的山巔，佇立著一座被天地遺忘的「孤城」——心靈的堡壘。這座城，既高不可攀，也無人能至，是一種對「絕對孤獨」的凝視；而這孤獨，並非虛無，而是深藏光芒與內斂的力量。",
+                        "N-2": "日本葛飾北齋筆下的富士山風景向來為世人所歌頌，本作則以瓦楞紙創作，搭配厚重筆觸與象徵性的構圖，形成一幅融合視覺與語言符碼的當代表現風景畫。畫面構圖特別強調「遠眺」的動作與情感，以及富士山作為景仰對象的沉靜存在感，保留了原標題的文化意境。畫中地平線處聚集的樹木與人物群像，以沉穩的褐色構成一種沈思氛圍，暗示人群在現實中追尋精神高度的過程。",
+                        "N-3": "畫家以俊秀筆勢繪畫台灣最高峰——「玉山」，山峰直指天心，山勢如劍鋒破雲，以意象之高遠引領視野向上攀升，描繪崇高的精神性與崇敬和平的象徵。畫面別出心裁以五色設色、筆觸強而有力，書寫立體山勢之流動感，岩層經年風蝕，真實且富生命感。畫中「玉山」寓意萬物由「金、木、水、火、土」五種基本元素構成，五行無所不在，與五色相生相剋，賦予這件作品獨具傳統色彩文化之精妙。又象徵為眾生祈福，循環往復，生生不息，構成共生共榮的繁華世界。",
+                        "N-4": "《未至之境》一作是致意未來的表現。透過簡潔、錯落的幾何形構成畫面，色彩雖斑斕，卻不喧嘩，像是在描繪一張未來的地圖，而地圖的終點，永遠保持模糊與開放，呈現一種尚未抵達、卻持續追尋的心理與空間狀態。色彩交界處隱含著決定與猶豫的節點，象徵著對未來的探索未竟。這幅作品既是一個空間的想像，也是一種時間上的等待與推進，宛如在尋找某個還未浮現的自己。",
+                        "O-1": "這幅畫陳述吊床懸浮於兩棵樹之間的物理狀態，寓意人物間微妙、彼此保持距離卻仍存在連結的關係感。《懸浮》表達二人關係中的拉扯與不穩，不上不下、各有所思，另一方面 'Drift' 搖擺的姿態則呼應海邊、漂浮、休憩中所蘊含的自由與疏離感。整體畫面延續懸浮原題的抽象性，同時加入視覺與心理的雙重層次。",
+                        "O-2": "《夸父追日》以幾何切面和明亮色彩構圖，詮釋關於意志與信念的象徵寓言。創作者故意安排七巧喵喵在畫面左下角，以說書人的姿態，得以將夸父的構圖呈現向上、向前推進的流動感，誇大人物的故事性。畫家駕馭紙張的性格，先以繽紛五彩紙自然呈現動感，再讓亮黃人物誇張步伐追逐光。這幅畫並非敘事性重現，而是抽象化的精神轉譯。追日不再是具象的奔跑，而是藉著色彩與節奏，讓夸父那份「明知不可為而為之」的堅毅精神、如火般的意志在空間迴盪。",
+                        "O-3": "透過三隻熊貓的聚合，描繪出家庭的溫暖與團聚的喜悅。畫面中母熊貓居中而立，兩隻幼熊依偎其旁，構成穩定三角結構，給人愛與安全感。厚實的筆觸，用色簡潔又保留肌理，讓人感受畫家的真實情誼。無論是親情、團圓或文化象徵，作品「圓滿」與「和諧」的情感狀態，表達人類普世價值團圓的詮釋與珍視。",
+                        "O-4": "《凝視》以斜線與矩形網格切割畫面，形成一種類似現代建築語彙的框架結構。這些幾何線條延伸與交錯，製造出空間深度與透明錯覺。貓則處於畫面中下方偏中央，凝視著「窗外」。色彩由柔和的粉彩系交織而成，黑色貓則形成視覺重心，既是全場最沉靜的色彩，也成為整幅畫的視覺對位。作品刻畫一隻輪廓簡約、幾近剪影的黑貓，靜坐於幾何色塊構築的窗前，彷彿注視著遙不可及的內在光源。這不只是「貓」的凝視，更是自身面對世界、面對內心秩序與混亂的凝望。這幅畫以貓作為寓意符號——既象徵孤獨、神秘，也代表冥想與靜觀——暗示一種存在狀態：既處於空間之內，又似乎與之抽離。",
+                        "O-5": "畫面背景以流動的紫色渲染，象徵病毒肆虐的陰霾；人物則穿著鮮明的紅、綠、藍、黃衣物，形成對比，表現出希望、勇氣與人類抗拒疫情的團結。這些色彩既分離又統一，象徵個體的獨特與家庭整體的凝聚。略顯稚拙的筆觸，顯示人性真誠與溫暖，讓畫面表述人性光芒，一種未經雕飾的純淨與溫馨。",
+                        "O-6": "這幅畫描繪一位歸者駕車，沿著鋪滿落葉的林蔭大道緩緩前行，像是走進時間與記憶的通道。紅葉夾道、步履緩慢，畫面中蘊含的不只是物理的「回家」，更是一種內心的返鄉，一種對日常與根源的深情凝望。在這條道路上，季節轉變彷彿也隱喻著人生旅途中的一段成熟與回望的時刻。畫面為了強調旅途與時間的流動，採用消失點透視，將視線引向消失的遠方。並選擇以鮮明的暖色調包覆整體畫面，象徵溫暖、懷舊，而畫面深處的遠方藍霧則刻意保留了一絲未竟與想像空間。",
+                        "O-7": "葛飾北齋名著《富嶽三十六景》，其中〈神奈川沖浪裏〉一作，以「普魯士藍」描繪神奈川外海波濤洶湧。本作深受葛飾北齋作品啟迪，創作《一葉扁舟》，呈現孤舟如葉，在巨浪洶湧的海面中孤身前行，海浪的筆勢強烈奔放，與細膩繪製的葉舟形成張力對比。這不是單純的自然描繪，而是一場象徵旅程的心靈譬喻。浪濤如命運與現實的推擠，葉舟上的紅色人物淡定端坐其中，展現無所求、無所懼，動中有靜、定中有慧的無我智慧，無法之法境界。",
+                        "P-1": "透過顏料的濃烈堆疊與筆勢的流動，畫面以強烈而奔放的筆觸構築色彩的旋渦，猶如時光印痕，在層層覆疊、錯落中留下難以抹去的思緒殘響。橙黃的亮彩如火焰般燃燒，又或墨紫、綠藍及深紅等等，每一筆彷彿在混亂中尋找存在的證明。痕跡並非和諧一致，也可能錯落、破碎卻充滿生命詩意，而這些筆觸所行經的記號，亦是內心風景的折射。",
+                        "P-2": "《邊緣人》以幾何分割與色彩對比構築出一種冷峻孤寂的視覺張力。畫作透過色彩與結構探索社會邊緣狀態，展現張力與分離的抽象語言，是一場關於秩序與孤獨的辯證。畫面中冷暖交錯的色塊彷彿彼此緊鄰卻無法連結，線條如牆般切割空間，也切割了情感的交融。每一個色塊，像是一個孤立的領域，彼此相鄰卻難以真正融合，象徵著身處群體之中卻感到無比孤單的現代人，在幾何結構中尋找心靈的居所，每個孤島色塊述說著沉默詩句與無聲的漂泊正遊走於心靈邊界。",
+                        "P-3": "畫中人物仰望天空、雙手合十的姿態，眼神中流露出祈求、信任與某種未竟的渴望。畫家以線狀滴落筆觸如淚、如雨、如神諭的流動，讓抽象中帶有靜默的力量。反映人類面對命運、信仰或困境時的呼求與思索，是一種精神上的朝聖。並以近距離的面部刻畫放大內心戲劇，昇華觀者情感共鳴。"
+                    };
+
+                    return descriptions[artwork.id] || `作品採用${artwork.title.slice(0, 2)}的創作手法，展現出獨特的藝術語言與深刻的文化內涵。通過精緻的技法處理，藝術家成功地將傳統與現代相結合，創造出既具時代感又不失經典韻味的作品。整體構圖和諧統一，色彩運用恰到好處，體現了藝術家對於美學的深刻理解與精湛技藝。作品不僅在視覺上帶來震撼，更在精神層面引發觀者的深度思考，展現了藝術作品應有的文化價值與審美意義。`;
+                },
+
+                getArtworkDescriptionEN(artwork) {
+                    const descriptionsEN = {
+                        "A-1": "this is A01 ENGLISH version簡介",
+                        "A-2": "this is A02 ENGLISH version簡介",
+                        "A-3": "this is A03 ENGLISH version簡介",
+                        "A-4": "this is A04 ENGLISH version簡介",
+                        "A-5": "this is A05 ENGLISH version簡介",
+                        "A-6": "this is A06 ENGLISH version簡介",
+                        "A-7": "this is A07 ENGLISH version簡介",
+                        "A-8": "this is A08 ENGLISH version簡介",
+                        "A-9": "this is A09 ENGLISH version簡介",
+                        "A-10": "this is A10 ENGLISH version簡介",
+                        "A-11": "this is A11 ENGLISH version簡介",
+                        "A-12": "this is A12 ENGLISH version簡介",
+                        "A-13": "this is A13 ENGLISH version簡介",
+                        "B-1": "this is B01 ENGLISH version簡介",
+                        "B-2": "this is B02 ENGLISH version簡介",
+                        "B-3": "this is B03 ENGLISH version簡介",
+                        "B-4": "this is B04 ENGLISH version簡介",
+                        "C-1": "this is C01 ENGLISH version簡介",
+                        "C-2": "this is C02 ENGLISH version簡介",
+                        "C-3": "this is C03 ENGLISH version簡介",
+                        "C-4": "this is C04 ENGLISH version簡介",
+                        "C-5": "this is C05 ENGLISH version簡介",
+                        "C-6": "this is C06 ENGLISH version簡介",
+                        "C-7": "this is C07 ENGLISH version簡介",
+                        "C-8": "this is C08 ENGLISH version簡介",
+                        "C-9": "this is C09 ENGLISH version簡介",
+                        "C-10": "this is C10 ENGLISH version簡介",
+                        "C-11": "this is C11 ENGLISH version簡介",
+                        "D-1": "this is D01 ENGLISH version簡介",
+                        "D-2": "this is D02 ENGLISH version簡介",
+                        "D-3": "this is D03 ENGLISH version簡介",
+                        "D-4": "this is D04 ENGLISH version簡介",
+                        "D-5": "this is D05 ENGLISH version簡介",
+                        "D-6": "this is D06 ENGLISH version簡介",
+                        "D-7": "this is D07 ENGLISH version簡介",
+                        "D-8": "this is D08 ENGLISH version簡介",
+                        "D-9": "this is D09 ENGLISH version簡介",
+                        "D-10": "this is D10 ENGLISH version簡介",
+                        "D-11": "this is D11 ENGLISH version簡介",
+                        "E-1": "this is E01 ENGLISH version簡介",
+                        "E-2": "this is E02 ENGLISH version簡介",
+                        "E-3": "this is E03 ENGLISH version簡介",
+                        "E-4": "this is E04 ENGLISH version簡介",
+                        "E-5": "this is E05 ENGLISH version簡介",
+                        "E-6": "this is E06 ENGLISH version簡介",
+                        "E-7": "this is E07 ENGLISH version簡介",
+                        "F-1": "this is F01 ENGLISH version簡介",
+                        "F-2": "this is F02 ENGLISH version簡介",
+                        "F-3": "this is F03 ENGLISH version簡介",
+                        "F-4": "this is F04 ENGLISH version簡介",
+                        "F-5": "this is F05 ENGLISH version簡介",
+                        "F-6": "this is F06 ENGLISH version簡介",
+                        "F-7": "this is F07 ENGLISH version簡介",
+                        "G-1": "this is G01 ENGLISH version簡介",
+                        "G-2": "this is G02 ENGLISH version簡介",
+                        "G-3": "this is G03 ENGLISH version簡介",
+                        "G-4": "this is G04 ENGLISH version簡介",
+                        "G-5": "this is G05 ENGLISH version簡介",
+                        "G-6": "this is G06 ENGLISH version簡介",
+                        "G-7": "this is G07 ENGLISH version簡介",
+                        "G-8": "this is G08 ENGLISH version簡介",
+                        "G-9": "this is G09 ENGLISH version簡介",
+                        "G-10": "this is G10 ENGLISH version簡介",
+                        "G-11": "this is G11 ENGLISH version簡介",
+                        "G-12": "this is G12 ENGLISH version簡介",
+                        "H-1": "this is H01 ENGLISH version簡介",
+                        "H-2": "this is H02 ENGLISH version簡介",
+                        "H-3": "this is H03 ENGLISH version簡介",
+                        "H-4": "this is H04 ENGLISH version簡介",
+                        "H-5": "this is H05 ENGLISH version簡介",
+                        "I-1": "this is I01 ENGLISH version簡介",
+                        "I-2": "this is I02 ENGLISH version簡介",
+                        "I-3": "this is I03 ENGLISH version簡介",
+                        "I-4": "this is I04 ENGLISH version簡介",
+                        "J-1": "this is J01 ENGLISH version簡介",
+                        "J-2": "this is J02 ENGLISH version簡介",
+                        "J-3": "this is J03 ENGLISH version簡介",
+                        "J-4": "this is J04 ENGLISH version簡介",
+                        "J-5": "this is J05 ENGLISH version簡介",
+                        "J-6": "this is J06 ENGLISH version簡介",
+                        "J-7": "this is J07 ENGLISH version簡介",
+                        "J-8": "this is J08 ENGLISH version簡介",
+                        "J-9": "this is J09 ENGLISH version簡介",
+                        "K-1": "this is K01 ENGLISH version簡介",
+                        "K-2": "this is K02 ENGLISH version簡介",
+                        "K-3": "this is K03 ENGLISH version簡介",
+                        "K-4": "this is K04 ENGLISH version簡介",
+                        "K-5": "this is K05 ENGLISH version簡介",
+                        "K-6": "this is K06 ENGLISH version簡介",
+                        "K-7": "this is K07 ENGLISH version簡介",
+                        "K-8": "this is K08 ENGLISH version簡介",
+                        "K-9": "this is K09 ENGLISH version簡介",
+                        "K-10": "this is K10 ENGLISH version簡介",
+                        "L-1": "this is L01 ENGLISH version簡介",
+                        "L-2": "this is L02 ENGLISH version簡介",
+                        "L-3": "this is L03 ENGLISH version簡介",
+                        "L-4": "this is L04 ENGLISH version簡介",
+                        "M-1": "this is M01 ENGLISH version簡介",
+                        "M-2": "this is M02 ENGLISH version簡介",
+                        "N-1": "this is N01 ENGLISH version簡介",
+                        "N-2": "this is N02 ENGLISH version簡介",
+                        "N-3": "this is N03 ENGLISH version簡介",
+                        "N-4": "this is N04 ENGLISH version簡介",
+                        "O-1": "this is O01 ENGLISH version簡介",
+                        "O-2": "this is O02 ENGLISH version簡介",
+                        "O-3": "this is O03 ENGLISH version簡介",
+                        "O-4": "this is O04 ENGLISH version簡介",
+                        "O-5": "this is O05 ENGLISH version簡介",
+                        "O-6": "this is O06 ENGLISH version簡介",
+                        "O-7": "this is O07 ENGLISH version簡介",
+                        "P-1": "this is P01 ENGLISH version簡介",
+                        "P-2": "this is P02 ENGLISH version簡介",
+                        "P-3": "this is P03 ENGLISH version簡介"
+                    };
+
+                    return descriptionsEN[artwork.id] || `This artwork employs ${artwork.title} techniques to showcase unique artistic language and profound cultural connotations. Through exquisite technical handling, the artist successfully combines tradition with modernity, creating works that are both contemporary and classically charming. The overall composition is harmonious and unified, with appropriate use of color, reflecting the artist's deep understanding of aesthetics and superb craftsmanship. The work not only brings visual impact but also triggers deep reflection on a spiritual level, demonstrating the cultural value and aesthetic significance that art should possess.`;
+                },
+
+                // 單筆設定標題
+                setTitle(zone, index, title) {
+                    const key = `${zone}-${index}`;
+                    this.customTitles[key] = title;
+                    if (this.allZoneArtworks[zone]) {
+                        const i = index - 1;
+                        if (this.allZoneArtworks[zone][i]) {
+                            this.allZoneArtworks[zone][i].title = title;
+                        }
+                    }
+                    if (zone === this.currentZone) {
+                        this.displayedArtworks = [...this.displayedArtworks];
+                    }
+                },
+
+                // 批次設定某展區的標題（傳入陣列）
+                setTitlesForZone(zone, titlesArray) {
+                    if (!Array.isArray(titlesArray)) return;
+                    titlesArray.forEach((t, idx) => {
+                        if (t) this.setTitle(zone, idx + 1, t);
+                    });
+                },
+
+                toggleMenu() {
+                    this.sidebarOpen = !this.sidebarOpen;
+                },
+
+                closeSidebar() {
+                    this.sidebarOpen = false;
+                },
+
+                goToHome() {
+                    this.closeSidebar();
+                    window.location.href = 'home.html';
+                },
+
+                goToContent() {
+                    this.closeSidebar();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+
+                goToAbout() {
+                    this.closeSidebar();
+                    window.location.href = 'about.html';
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

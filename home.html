@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蘇一仲會長 - 繪畫藝術創作展</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #f39c12;
+            --soft-gold: #f4d03f;
+            --warm-beige: #f8f6f0;
+            --text-dark: #2c3e50;
+            --text-light: #666;
+            --text-muted: #888;
+            --border-light: #e8e6e3;
+            --shadow-soft: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-medium: 0 8px 30px rgba(0,0,0,0.12);
+            --gradient-warm: linear-gradient(135deg, #f8f6f0 0%, #f4d03f 100%);
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--warm-beige);
+            overflow-x: hidden;
+            line-height: 1.7;
+            color: var(--text-dark);
+            font-size: 16px;
+        }
+
+        /* Header 優化 */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .logo-en {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.65rem;
+            line-height: 1.1;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
+        .logo-zh {
+            font-size: 0.9rem;
+            line-height: 1.2;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-btn:active {
+            background: var(--warm-beige);
+            transform: scale(0.95);
+        }
+
+        /* 主容器 */
+        .main-container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        /* 展覽標題區域 - 大幅優化 */
+        .exhibition-header {
+            background: var(--gradient-warm);
+            padding: 2.5rem 1.2rem 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exhibition-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23000" opacity="0.02"/><circle cx="75" cy="75" r="1" fill="%23000" opacity="0.02"/><circle cx="50" cy="10" r="0.5" fill="%23000" opacity="0.03"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .artist-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: var(--text-dark);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 1px;
+        }
+
+        .artist-english {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-bottom: 1.2rem;
+            letter-spacing: 2px;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+
+        .exhibition-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+            font-weight: 400;
+        }
+
+        .exhibition-years {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            letter-spacing: 3px;
+            margin: 1.5rem 0 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .exhibition-theme {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            letter-spacing: 4px;
+            position: relative;
+            z-index: 1;
+            margin-top: 1rem;
+        }
+
+        /* 作品展示區域 */
+        .artwork-display {
+            padding: 3rem 1.2rem;
+            text-align: center;
+            background: white;
+        }
+
+        .main-artwork-frame {
+            width: 100%;
+            max-width: 380px;
+            margin: 0 auto 2rem;
+            padding: 1.2rem;
+            background: white;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-artwork-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-color), var(--soft-gold), var(--accent-color));
+        }
+
+        .main-artwork-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            border: 2px solid #f8f8f8;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .artwork-placeholder {
+            padding: 4rem 1.5rem;
+            background: linear-gradient(135deg, #f8f8f8, #f0f0f0);
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            color: var(--text-light);
+            text-align: center;
+        }
+
+        .artwork-placeholder-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.6;
+        }
+
+        .artwork-placeholder-text {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .artwork-placeholder-path {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            font-family: monospace;
+            background: rgba(255,255,255,0.7);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        /* 詩詞區域 - 大幅優化 */
+        .poetry-section {
+            background: linear-gradient(135deg, #f9f9f9 0%, #f4f4f4 100%);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            border-top: 1px solid var(--border-light);
+            position: relative;
+        }
+
+        .poetry-chinese {
+            font-size: 1.3rem;
+            line-height: 2.2;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+        }
+
+        .poetry-chinese div {
+            margin-bottom: 0.3rem;
+        }
+
+        .poetry-divider {
+            width: 60px;
+            height: 2px;
+            background: var(--accent-color);
+            margin: 2rem auto;
+            opacity: 0.6;
+        }
+
+        .poetry-english {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-style: italic;
+            line-height: 1.8;
+            letter-spacing: 0.5px;
+        }
+
+        /* 描述區域 */
+        .artist-description {
+            padding: 3rem 1.2rem;
+            text-align: left;
+            background: white;
+        }
+
+        .description-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--text-dark);
+            text-align: center;
+            position: relative;
+        }
+
+        .description-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        .artist-statement {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--text-dark);
+            text-align: justify;
+            margin-bottom: 1.5rem;
+            font-weight: 250;
+        }
+
+        .artist-statement br {
+            margin-bottom: 1.5rem;
+        }
+
+        /* 簽名區域 */
+        .artist-signature {
+            padding: 2.5rem 1.2rem;
+            text-align: center;
+            background: var(--warm-beige);
+            border-top: 1px solid var(--border-light);
+        }
+
+        .signature-img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.1));
+        }
+
+        .signature-placeholder {
+            padding: 2rem;
+            color: var(--text-light);
+            text-align: center;
+            font-size: 0.9rem;
+            background: rgba(255,255,255,0.5);
+            border-radius: 8px;
+            border: 1px dashed #ddd;
+        }
+
+        /* 頁腳 */
+        .page-footer {
+            padding: 2rem 1.2rem;
+            text-align: center;
+            background: var(--text-dark);
+            color: white;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        /* 動畫效果 */
+        .animate-fade {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hover-effect {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hover-effect:active {
+            transform: translateY(2px) scale(0.98);
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* 側邊菜單優化 */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(320px, 85vw);
+            height: 100%;
+            background: white;
+            z-index: 201;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -4px 0 30px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 1.8rem 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--warm-beige);
+        }
+
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:active {
+            background: rgba(0,0,0,0.05);
+            transform: scale(0.9);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 1.2rem 1.5rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .menu-item:active {
+            background: var(--warm-beige);
+            color: var(--accent-color);
+            transform: translateX(4px);
+        }
+
+        .menu-item.active {
+            background: var(--warm-beige);
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .menu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--accent-color);
+        }
+
+        .menu-icon {
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .menu-text {
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-light);
+            color: var(--text-light);
+            font-size: 0.8rem;
+            text-align: center;
+            background: #fafafa;
+        }
+
+        /* 手機優化 */
+        @media (max-width: 480px) {
+            .artist-title {
+                font-size: 1.8rem;
+            }
+
+            .exhibition-header {
+                padding: 2rem 1rem 2.5rem;
+            }
+
+            .main-artwork-frame {
+                max-width: 95%;
+                padding: 1rem;
+            }
+
+            .artist-statement {
+                font-size: 0.95rem;
+                line-height: 1.7;
+            }
+
+            .poetry-chinese {
+                font-size: 1.2rem;
+                letter-spacing: 1px;
+            }
+
+            .sidebar {
+                width: 90vw;
+            }
+        }
+
+        /* 超小屏幕 */
+        @media (max-width: 360px) {
+            .header {
+                padding: 0.8rem 1rem;
+            }
+            
+            .logo-en {
+                font-size: 0.6rem;
+            }
+            
+            .logo-zh {
+                font-size: 0.85rem;
+            }
+            
+            .artist-title {
+                font-size: 1.6rem;
+            }
+            
+            .exhibition-years {
+                font-size: 1.3rem;
+                letter-spacing: 2px;
+            }
+        }
+
+        /* 觸摸優化 */
+        @media (hover: none) and (pointer: coarse) {
+            .hover-effect:hover {
+                transform: none;
+                box-shadow: var(--shadow-medium);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-en">ARTS & CULTURAL CENTER</div>
+            <div class="logo-zh">藝文中心數位展演</div>
+        </div>
+        <button class="menu-btn" aria-label="開啟選單">⋯</button>
+    </header>
+
+    <div class="main-container">
+        <!-- 展覽標題區域 -->
+        <section class="exhibition-header animate-fade">
+            <h1 class="artist-title">蘇一仲會長</h1>
+            <p class="artist-english">ANTONIO SOO</p>
+            <p class="exhibition-subtitle">繪畫藝術創作展</p>
+            <p class="exhibition-subtitle">A Collection of Artistic Creations</p>
+            <div class="exhibition-years">2014－2024</div>
+            <p class="exhibition-theme">有　無　相　生</p>
+        </section>
+
+        <!-- 作品展示區域 -->
+        <section class="artwork-display animate-fade">
+            <div class="main-artwork-frame hover-effect">
+                <img class="main-artwork-image" src="images/主視覺.png" alt="蘇一仲藝術作品"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                
+                <div class="artwork-placeholder" style="display:none;">
+                    <div class="artwork-placeholder-icon">🎨</div>
+                    <div class="artwork-placeholder-text">蘇一仲藝術作品</div>
+                    <div class="artwork-placeholder-path">images/主視覺.png</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 詩詞區域 -->
+        <section class="poetry-section animate-fade">
+            <div class="poetry-chinese">
+                <div>提筆容易</div>
+                <div>停筆難</div>
+                <br>
+                <div>筆尖上的思緒</div>
+                <div>過於喧囂</div>
+            </div>
+
+            <div class="poetry-divider"></div>
+
+            <div class="poetry-english">
+                It's easy to start<br>
+                but hard to stop.<br>
+                <br>
+                Whispers at the Pen's Point,<br>
+                Deafening Clamor.
+            </div>
+        </section>
+
+        <!-- 藝術家描述 -->
+        <section class="artist-description animate-fade">
+            <h2 class="description-title">畫家序</h2>
+            <p class="artist-statement">
+                商場並不是我生命中唯一興趣，舉凡八大藝術——戲劇、文學、電影、音樂、美術、建築、閱讀、甚至魔術戲法或美食等等，一切有情有味「美」的事物，都讓我的生活中多了幾分樂趣與滋味。中外人士嗜用「雅興」妝點這種興致，而令我心馳神往的是藝術中赤誠的生命能量。自幼喜愛繪畫，差點念了美術系，爾後雖念了外交系、經商，工作雖忙碌，卻未曾澆滅對畫畫和賞畫的熱衷，約於2014年開始嘗試藝術平面創作這件事，這項藝術讓我的人格特質——喜愛觀察、不因循蹈軌、熱愛自由和獨立思考得以發揮，透過構圖線條和色彩，揮灑自我對生命狂熾的熱忱。創作至今10年，累積了上千張作品，但追求創新創意的意志和理念從未改變，堅信藝術創作道路上——「要最好，你非變不可」！
+            </p>
+            <p class="artist-statement">
+                繪畫的創作領域從傳統水墨、書法、水彩、壓克力畫等等，各式主題都吸引我嘗試的慾望，喜愛探索材質和挑戰新境，呈現自我風格。從不認為傳統藝術或主題就是守舊，好作品不分傳統或當代，重點是創作者如何透過畫筆詮釋「意境」，因此創作中少不了帶有文化或文學背景的作品，如「五福臨門」、「采菊東籬」、「柿柿如意」或描述親情的畫作，甚至帶有童趣的主題也是畫筆下的常客。疫情期間全球緊張的氛圍和不同的材質提供另類創作思維，諸如「男人男人」、「女人女人」；而好奇世界風情，各國人物文化描述也是創作重點之一；「佛」境的美好，並非創作的點綴，而是核心，禪意寄予一花一草、山川大海、萬物生靈，乃至綠焰之書或孤城萬仞，一切恩典盡在觀自在的慈悲凝視中化為得心自在。
+            </p>
+            <p class="artist-statement">
+                在《In Solitude 有無相生●蘇一仲藝術創作展》即將開幕之際，將這個展獻給摯愛的家人及朋友們，你們是我最重要的珍寶!感謝和泰興業大家庭和全體扶輪社社友對我的愛護，以及社會大眾的支持；謝謝海內外美好人生協會及好友們對我的鼓勵與關心 ! 最後，無論舊識或素未謀面，希望你∕妳因這個展認識我的作品，走進Antonio的繪畫世界，與我分享藝術創作的喜悅，也透過藝術人文表達我對社會大眾的關懷與祝福。
+            </p>
+        </section>
+
+        <!-- 簽名區域 -->
+        <section class="artist-signature animate-fade">
+
+            <div class="signature-placeholder" style="display:none;">
+                <p>藝術家簽名</p>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.7;">images/簽名.png</p>
+            </div>
+        </section>
+
+        <!-- 側邊選單 -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">選單</div>
+                <button class="close-btn" id="closeSidebar" aria-label="關閉選單">×</button>
+            </div>
+            <div class="sidebar-content">
+                <button class="menu-item active" onclick="goToHome()">
+                    <span class="menu-icon">🏠</span>
+                    <span class="menu-text">主頁</span>
+                </button>
+                <button class="menu-item" onclick="goToContent()">
+                    <span class="menu-icon">🖼️</span>
+                    <span class="menu-text">作品展覽</span>
+                </button>
+                <button class="menu-item" onclick="goToAbout()">
+                    <span class="menu-icon">ℹ️</span>
+                    <span class="menu-text">關於展覽</span>
+                </button>
+            </div>
+            <div class="sidebar-footer">
+                藝文中心數位展演<br>
+                © 2025 版權所有
+            </div>
+        </div>
+
+        <!-- 頁腳 -->
+        <footer class="page-footer">
+            <p>&copy; 2025 北科大藝文中心. All rights reserved.</p>
+            <p style="margin-top: 0.5rem; opacity: 0.8;">Created by: 林莉婕, 郭采玲, 李佳珊, 許敦富</p>
+        </footer>
+    </div>
+
+    <script>
+        // 頁面載入動畫
+        document.addEventListener('DOMContentLoaded', function () {
+            // 設定初始狀態
+            const elements = document.querySelectorAll('.animate-fade');
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                
+                // 延遲動畫，創造依序出現效果
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // 作品圖片互動效果
+            const artwork = document.querySelector('.main-artwork-frame');
+            if (artwork) {
+                artwork.addEventListener('touchstart', function () {
+                    this.style.transform = 'scale(1.02)';
+                });
+
+                artwork.addEventListener('touchend', function () {
+                    this.style.transform = 'scale(1)';
+                });
+            }
+
+            // 側邊選單功能
+            const menuBtn = document.querySelector('.menu-btn');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const closeSidebar = document.getElementById('closeSidebar');
+
+            // 開啟選單
+            if (menuBtn) {
+                menuBtn.addEventListener('click', function () {
+                    sidebar.classList.add('active');
+                    sidebarOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+
+            // 關閉選單 - 點擊遮罩
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function () {
+                    closeSidebarFunc();
+                });
+            }
+
+            // 關閉選單 - 點擊關閉按鈕
+            if (closeSidebar) {
+                closeSidebar.addEventListener('click', function () {
+                    closeSidebarFunc();
+                });
+            }
+
+            // 關閉選單函數
+            function closeSidebarFunc() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+
+            // ESC 鍵關閉選單
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    closeSidebarFunc();
+                }
+            });
+
+            // 防止選單滾動時背景滾動
+            sidebar.addEventListener('touchmove', function(e) {
+                e.stopPropagation();
+            });
+
+            // 平滑滾動到區塊
+            function smoothScrollTo(targetId) {
+                const target = document.getElementById(targetId) || document.querySelector(targetId);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+        });
+
+        // 導航功能
+        function goToHome() {
+            closeSidebarFunc();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goToContent() {
+            if (typeof window !== 'undefined') {
+                window.location.href = 'index.html';
+            }
+        }
+
+        function goToAbout() {
+            if (typeof window !== 'undefined') {
+                window.location.href = 'about.html';
+            }
+        }
+
+        function closeSidebarFunc() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            if (sidebar && sidebarOverlay) {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // 圖片載入錯誤處理
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.addEventListener('error', function() {
+                    console.log('Image failed to load:', this.src);
+                });
+            });
+        });
+
+        // 觸摸回饋增強
+        document.addEventListener('touchstart', function() {}, {passive: true});
+    </script>
+</body>
+
+</html>
