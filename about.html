@@ -813,16 +813,6 @@
 
         // 觸摸回饋增強
         document.addEventListener('touchstart', function() {}, {passive: true});
-
-        // 滾動視差效果（輕微）
-        window.addEventListener('scroll', function() {
-            const scrolled = window.pageYOffset;
-            const parallax = document.querySelector('.page-header');
-            if (parallax) {
-                const speed = scrolled * 0.5;
-                parallax.style.transform = `translateY(${speed}px)`;
-            }
-        });
     </script>
 </body>
 
