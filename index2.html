@@ -161,21 +161,22 @@
         }
 
         .zone-navigation {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 25px;
-            padding: 0.5rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            max-width: 90vw;
-            overflow: hidden;
-        }
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%) scale(1.2); /* 同時置中+放大 */
+    transform-origin: bottom center; 
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    max-width: 95vw; /* 避免超出螢幕 */
+    overflow: hidden;
+}
 
         .nav-arrow {
             width: 35px;
@@ -204,29 +205,30 @@
         }
 
         .zone-slider {
-            display: flex;
-            gap: 0.5rem;
-            overflow: hidden;
-            scroll-behavior: smooth;
-            padding: 0 0.5rem;
-            width: 180px;
-        }
+    display: flex;
+    gap: 0.6rem;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 0 0.3rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex: 0 0 auto;
+    width: calc(45px * 4 + 0.6rem * 3 + 1rem); 
+}
 
-        .zone-slider-inner {
-            display: flex;
-            gap: 0.5rem;
-            transition: transform 0.3s ease;
+        .zone-slider::-webkit-scrollbar {
+            display: none;
         }
 
         .zone-btn {
-            width: 35px;
-            height: 35px;
+            width: 45px;
+            height: 45px;
             border: none;
             border-radius: 50%;
             background: white;
             color: #6c757d;
             font-weight: bold;
-            font-size: 0.8rem;
+            font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s;
             flex-shrink: 0;
@@ -287,14 +289,16 @@
             border-bottom: 1px solid #e9ecef;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 1rem;
             position: sticky;
+            justify-content: space-between;
             top: 0;
             background: white;
             z-index: 1001;
             height: 65px;
         }
 
+        /*new*/
         .detail-specs {
             white-space: pre-line;
             color: #808080;
@@ -395,6 +399,45 @@
             font-size: 0.8rem;
         }
 
+        @media (max-width: 480px) {
+            .detail-content {
+                padding: 1.5rem 1rem;
+            }
+
+            .detail-code {
+                top: 1rem;
+                right: 1rem;
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content-container {
+                padding: 1rem 0.5rem;
+            }
+
+            .artwork-grid {
+                gap: 1rem;
+            }
+
+            .artwork-image {
+                height: 150px;
+            }
+
+            .zone-navigation {
+                bottom: 1rem;
+                padding: 0.3rem;
+            }
+
+            .zone-btn,
+            .nav-arrow {
+                width: 30px;
+                height: 30px;
+                font-size: 0.7rem;
+            }
+        }
+
         /* 側邊菜單樣式 */
         .sidebar-overlay {
             position: fixed;
@@ -419,7 +462,7 @@
             position: fixed;
             top: 0;
             right: 0;
-            width: min(320px, 85vw);
+            width: min(320px, 70vw);
             height: 100%;
             background: white;
             z-index: 201;
@@ -510,6 +553,12 @@
             transform: translateX(4px);
         }
 
+        .menu-item.active {
+            background: var(--warm-beige);
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
         .menu-item.active::before {
             content: '';
             position: absolute;
@@ -525,6 +574,8 @@
             font-size: 1.2rem;
             width: 24px;
             text-align: center;
+            
+            
         }
 
         .menu-text {
@@ -539,58 +590,6 @@
             font-size: 0.8rem;
             text-align: center;
             background: #fafafa;
-        }
-
-        @media (max-width: 480px) {
-            .content-container {
-                padding: 1rem 0.5rem;
-            }
-
-            .artwork-grid {
-                gap: 1rem;
-            }
-
-            .artwork-image {
-                height: 150px;
-            }
-
-            .zone-navigation {
-                bottom: 1rem;
-                padding: 0.3rem;
-            }
-
-            .zone-slider {
-                width: 140px;
-            }
-
-            .zone-btn,
-            .nav-arrow {
-                width: 30px;
-                height: 30px;
-                font-size: 0.7rem;
-            }
-
-            .detail-content {
-                padding: 1.5rem 1rem;
-            }
-
-            .detail-header {
-                padding: 0.8rem 1rem;
-                height: 55px;
-            }
-
-            .detail-code {
-                font-size: 0.8rem;
-                height: 35px;
-                padding: 0 1.5rem 0 1.2rem;
-                margin-right: -1rem;
-            }
-
-            .back-btn {
-                font-size: 1.1rem;
-                padding: 0.4rem;
-                height: 35px;
-            }
         }
     </style>
 </head>
@@ -622,41 +621,40 @@
         </div>
 
         <nav class="zone-navigation">
-            <button class="nav-arrow" @click="slideLeft" :disabled="sliderOffset === 0">‹</button>
-            <div class="zone-slider">
-                <div class="zone-slider-inner" :style="{ transform: `translateX(-${sliderOffset * 40}px)` }">
-                    <button v-for="(zone, index) in zones" :key="zone"
-                        :class="['zone-btn', { active: currentZone === zone }]" @click="goToZone(zone)">
-                        {{ zone }}
-                    </button>
-                </div>
+            <button class="nav-arrow" @click="previousZone" :disabled="currentZoneIndex === 0">‹</button>
+            <div class="zone-slider" ref="zoneSlider">
+                <button v-for="(zone, index) in zones" :key="zone"
+                    :class="['zone-btn', { active: currentZone === zone }]" @click="goToZone(zone)"
+                    :ref="'zone-' + zone">
+                    {{ zone }}
+                </button>
             </div>
-            <button class="nav-arrow" @click="slideRight" :disabled="sliderOffset >= maxSliderOffset">›</button>
+            <button class="nav-arrow" @click="nextZone" :disabled="currentZoneIndex === zones.length - 1">›</button>
         </nav>
 
         <!-- Sidebar -->
         <div class="sidebar-overlay" :class="{ active: sidebarOpen }" @click="closeSidebar"></div>
         <div class="sidebar" :class="{ active: sidebarOpen }">
             <div class="sidebar-header">
-                <div class="sidebar-title">菜單</div>
+                <div class="sidebar-title">選單</div>
                 <button class="close-btn" @click="closeSidebar">×</button>
             </div>
             <div class="sidebar-content">
                 <button class="menu-item" @click="goToHome">
                     <span class="menu-icon">
-                        <img src="images/home.png" alt="home">
+                        <img src="images/Home.svg" alt="home">
                     </span>
                     <span class="menu-text">主頁</span>
                 </button>
                 <button class="menu-item active" @click="goToContent">
                     <span class="menu-icon">
-                        <img src="images/painting.png" alt="artwork">
+                        <img src="images/Paintings.svg" alt="artwork">
                     </span>
                     <span class="menu-text">作品展覽</span>
                 </button>
                 <button class="menu-item" @click="goToAbout">
                     <span class="menu-icon">
-                        <img src="images/info.png" alt="about">
+                        <img src="images/Info.svg" alt="about">
                     </span>
                     <span class="menu-text">關於展覽</span>
                 </button>
@@ -685,6 +683,7 @@
                 <div class="detail-info">
                     <h1 class="detail-title">{{ selectedArtwork.title }}</h1>
                     <p class="detail-subtitle">{{ selectedArtwork.subtitle }}</p>
+                    <!--新增內文-->
                     <pre class="detail-specs">{{ selectedArtwork.specs }}</pre>
                 </div>
 
@@ -717,47 +716,55 @@
                         'A': 13, 'B': 20, 'C': 12, 'D': 12, 'E': 7, 'F': 7, 'G': 12, 'H': 5,
                         'I': 4, 'J': 9, 'K': 10, 'L': 4, 'M': 2, 'N': 4, 'O': 7, 'P': 3
                     },
+                    // 自訂標題映射：key `${zone}-${index}` → 標題
                     customTitles: {},
                     selectedArtwork: null,
                     sidebarOpen: false,
-                    sliderOffset: 0,
-                    visibleZonesCount: 4
                 }
             },
             computed: {
                 currentZoneIndex() {
                     return this.zones.indexOf(this.currentZone);
-                },
-                maxSliderOffset() {
-                    return Math.max(0, this.zones.length - this.visibleZonesCount);
                 }
             },
             mounted() {
                 this.loadZoneArtworks(this.currentZone);
             },
             methods: {
+                // 為每個展區生成不同的作品標題
                 generateArtworkTitle(zone, index) {
-                    const titleTemplates = {};
+                    const titleTemplates = {
+                    };
+
                     const zoneTemplates = titleTemplates[zone] || [`${zone}區作品`];
                     return zoneTemplates[(index - 1) % zoneTemplates.length] || `${zone}${index.toString().padStart(2, '0')}號作品`;
                 },
 
+                // 為每個展區生成不同的作品副標題
                 generateArtworkSubtitle(zone, index) {
-                    const subtitleTemplates = {};
+                    const subtitleTemplates = {
+                    };
+
                     const zoneTemplates = subtitleTemplates[zone] || ['A World of One\'s Own'];
                     return zoneTemplates[(index - 1) % zoneTemplates.length] || 'A World of One\'s Own';
                 },
 
                 generateArtworkSpecs(zone, index) {
-                    const specsTemplates = {};
+                    const specsTemplates = {
+                    };
+
                     const zoneTemplates = specsTemplates[zone] || ['尺寸可變\n混合媒材\n2023'];
                     return zoneTemplates[(index - 1) % zoneTemplates.length] || '尺寸可變\n混合媒材\n2023';
                 },
 
                 generateArtwork(zone, index) {
                     const key = `${zone}-${index}`;
+
+                    // 使用自訂標題或生成的唯一標題
                     const title = this.customTitles[key] || this.generateArtworkTitle(zone, index);
                     const subtitle = this.generateArtworkSubtitle(zone, index);
+
+                    //新增
                     const specs = this.generateArtworkSpecs(zone, index);
 
                     return {
@@ -766,6 +773,8 @@
                         subtitle,
                         code: `${zone}${index.toString().padStart(2, '0')}`,
                         image: `images/${zone}/artwork${index}.jpg`,
+
+                        //new add 
                         specs
                     };
                 },
@@ -781,6 +790,7 @@
 
                         this.allZoneArtworks[zone] = artworks;
                     } else {
+                        // 如果已載入，重新同步自訂標題（避免後續修改無法反映）
                         this.allZoneArtworks[zone] = this.allZoneArtworks[zone].map((a, idx) => {
                             const key = `${zone}-${idx + 1}`;
                             return {
@@ -790,6 +800,7 @@
                         });
                     }
 
+                    // 一次性顯示該展區的所有作品
                     this.displayedArtworks = [...this.allZoneArtworks[zone]];
                 },
 
@@ -797,28 +808,20 @@
                     if (zone !== this.currentZone) {
                         this.currentZone = zone;
                         this.loadZoneArtworks(zone);
-                        
-                        // 自動調整滑動位置，確保選中的區域可見
-                        const zoneIndex = this.zones.indexOf(zone);
-                        if (zoneIndex < this.sliderOffset) {
-                            this.sliderOffset = zoneIndex;
-                        } else if (zoneIndex >= this.sliderOffset + this.visibleZonesCount) {
-                            this.sliderOffset = zoneIndex - this.visibleZonesCount + 1;
-                        }
 
+                        // 滾動到該區域按鈕的中央
+                        this.$nextTick(() => {
+                            const zoneBtn = this.$refs['zone-' + zone]?.[0];
+                            if (zoneBtn) {
+                                zoneBtn.scrollIntoView({
+                                    behavior: 'smooth',
+                                    inline: 'center'
+                                });
+                            }
+                        });
+
+                        // 滾動到頂部
                         window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                },
-
-                slideLeft() {
-                    if (this.sliderOffset > 0) {
-                        this.sliderOffset--;
-                    }
-                },
-
-                slideRight() {
-                    if (this.sliderOffset < this.maxSliderOffset) {
-                        this.sliderOffset++;
                     }
                 },
 
@@ -838,24 +841,31 @@
 
                 selectArtwork(artwork) {
                     this.selectedArtwork = artwork;
+                    // 阻止背景滾動
                     document.body.style.overflow = 'hidden';
                 },
 
                 closeDetail() {
                     this.selectedArtwork = null;
+                    // 恢復背景滾動
                     document.body.style.overflow = 'auto';
                 },
 
                 getArtworkDescription(artwork) {
-                    const descriptions = {};
+                    const descriptions = {
+                    };
+
                     return descriptions[artwork.id] || `作品採用${artwork.title.slice(0, 2)}的創作手法，展現出獨特的藝術語言與深刻的文化內涵。通過精緻的技法處理，藝術家成功地將傳統與現代相結合，創造出既具時代感又不失經典韻味的作品。整體構圖和諧統一，色彩運用恰到好處，體現了藝術家對於美學的深刻理解與精湛技藝。作品不僅在視覺上帶來震撼，更在精神層面引發觀者的深度思考，展現了藝術作品應有的文化價值與審美意義。`;
                 },
 
                 getArtworkDescriptionEN(artwork) {
-                    const descriptionsEN = {};
+                    const descriptionsEN = {
+                    };
+
                     return descriptionsEN[artwork.id] || `This artwork employs ${artwork.title} techniques to showcase unique artistic language and profound cultural connotations. Through exquisite technical handling, the artist successfully combines tradition with modernity, creating works that are both contemporary and classically charming. The overall composition is harmonious and unified, with appropriate use of color, reflecting the artist's deep understanding of aesthetics and superb craftsmanship. The work not only brings visual impact but also triggers deep reflection on a spiritual level, demonstrating the cultural value and aesthetic significance that art should possess.`;
                 },
 
+                // 單筆設定標題
                 setTitle(zone, index, title) {
                     const key = `${zone}-${index}`;
                     this.customTitles[key] = title;
@@ -870,6 +880,7 @@
                     }
                 },
 
+                // 批次設定某展區的標題（傳入陣列）
                 setTitlesForZone(zone, titlesArray) {
                     if (!Array.isArray(titlesArray)) return;
                     titlesArray.forEach((t, idx) => {
@@ -887,7 +898,7 @@
 
                 goToHome() {
                     this.closeSidebar();
-                    window.location.href = 'artist.html';
+                    window.location.href = 'home.html';
                 },
 
                 goToContent() {

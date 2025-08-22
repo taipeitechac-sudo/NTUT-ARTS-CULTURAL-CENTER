@@ -7,7 +7,9 @@
     <title>關於展覽 - 藝文中心數位展演</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -24,8 +26,8 @@
             --text-light: #666;
             --text-muted: #888;
             --border-light: #e8e6e3;
-            --shadow-soft: 0 4px 20px rgba(0,0,0,0.08);
-            --shadow-medium: 0 8px 30px rgba(0,0,0,0.12);
+            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
             --gradient-warm: linear-gradient(135deg, #f8f6f0 0%, #f4d03f 100%);
         }
 
@@ -170,7 +172,7 @@
 
         .section-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
         }
 
         .section-title {
@@ -221,7 +223,7 @@
             padding: 2.5rem 1.5rem 2rem;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
             border: 1px solid var(--border-light);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
@@ -246,7 +248,7 @@
 
         .contact-item:hover {
             transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
         }
 
         .contact-item:active {
@@ -267,9 +269,11 @@
             box-shadow: 0 6px 20px rgba(243, 156, 18, 0.3);
         }
 
-        .contact-icon img{
-            width: 9vw;
-            height: 9vw;
+        .contact-icon img {
+            width: 60%;
+            height: 60%;
+            object-fit: contain;
+            /* 保持比例，避免變形 */
         }
 
         .contact-details {
@@ -347,6 +351,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -424,7 +429,7 @@
         }
 
         .close-btn:active {
-            background: rgba(0,0,0,0.05);
+            background: rgba(0, 0, 0, 0.05);
             transform: scale(0.9);
         }
 
@@ -551,7 +556,7 @@
             }
 
             .sidebar {
-                width: 90vw;
+                width: 70vw;
             }
         }
 
@@ -609,38 +614,39 @@
                 <div class="contact-info">
                     <div class="contact-item">
                         <div class="contact-icon">
-                            <img src="images/location.png" alt="location">
+                            <img src="images/location.svg" alt="location">
                         </div>
                         <div class="contact-details">
                             <div class="contact-label">地址</div>
                             <div class="contact-value">臺北市大安區忠孝東路三段一號
-                                <br>捷運忠孝新生站4號出口</div>
+                                <br>捷運忠孝新生站4號出口
+                            </div>
                         </div>
                     </div>
-                    
+
                     <div class="contact-item">
                         <div class="contact-icon">
-                            <img src="images/phone.png" alt="phone">
+                            <img src="images/phone.svg" alt="phone">
                         </div>
                         <div class="contact-details">
                             <div class="contact-label">電話</div>
                             <div class="contact-value">(02) 1234-5678</div>
                         </div>
                     </div>
-                    
+
                     <div class="contact-item">
                         <div class="contact-icon">
-                            <img src="images/mail.png" alt="mail">
+                            <img src="images/mail.svg" alt="mail">
                         </div>
                         <div class="contact-details">
                             <div class="contact-label">電子郵件</div>
                             <div class="contact-value">info@artscenter.tw</div>
                         </div>
                     </div>
-                    
+
                     <div class="contact-item">
                         <div class="contact-icon">
-                            <img src="images/clock.png" alt="clock">
+                            <img src="images/clock.svg" alt="clock">
                         </div>
                         <div class="contact-details">
                             <div class="contact-label">開放時間</div>
@@ -660,15 +666,21 @@
             </div>
             <div class="sidebar-content">
                 <button class="menu-item" onclick="goToHome()">
-                    <span class="menu-icon">🏠</span>
+                    <span class="menu-icon">
+                        <img src="images/Home.svg" alt="home">
+                    </span>
                     <span class="menu-text">主頁</span>
                 </button>
                 <button class="menu-item" onclick="goToContent()">
-                    <span class="menu-icon">🖼️</span>
+                    <span class="menu-icon">
+                        <img src="images/Paintings.svg" alt="home">
+                    </span>
                     <span class="menu-text">作品展覽</span>
                 </button>
                 <button class="menu-item active" onclick="goToAbout()">
-                    <span class="menu-icon">ℹ️</span>
+                    <span class="menu-icon">
+                        <img src="images/Info.svg" alt="home">
+                    </span>
                     <span class="menu-text">關於展覽</span>
                 </button>
             </div>
@@ -694,7 +706,7 @@
                 el.style.opacity = '0';
                 el.style.transform = 'translateY(30px)';
                 el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-                
+
                 // 延遲動畫，創造依序出現效果
                 setTimeout(() => {
                     el.style.opacity = '1';
@@ -746,7 +758,7 @@
             });
 
             // 防止選單滾動時背景滾動
-            sidebar.addEventListener('touchmove', function(e) {
+            sidebar.addEventListener('touchmove', function (e) {
                 e.stopPropagation();
             });
 
@@ -754,11 +766,11 @@
             if (window.matchMedia('(hover: hover)').matches) {
                 const cards = document.querySelectorAll('.section-card');
                 cards.forEach(card => {
-                    card.addEventListener('mouseenter', function() {
+                    card.addEventListener('mouseenter', function () {
                         this.style.transform = 'translateY(-8px) scale(1.02)';
                     });
-                    
-                    card.addEventListener('mouseleave', function() {
+
+                    card.addEventListener('mouseleave', function () {
                         this.style.transform = 'translateY(0) scale(1)';
                     });
                 });
@@ -767,16 +779,16 @@
             // 聯絡資訊點擊互動
             const contactItems = document.querySelectorAll('.contact-item');
             contactItems.forEach(item => {
-                item.addEventListener('click', function() {
+                item.addEventListener('click', function () {
                     const label = this.querySelector('.contact-label').textContent;
                     const value = this.querySelector('.contact-value').textContent;
-                    
+
                     // 添加點擊回饋效果
                     this.style.transform = 'scale(0.98)';
                     setTimeout(() => {
                         this.style.transform = 'scale(1)';
                     }, 150);
-                    
+
                     // 根據類型執行不同動作
                     if (label === '電話') {
                         if (confirm(`撥打電話：${value}?`)) {
@@ -825,7 +837,7 @@
         }
 
         // 觸摸回饋增強
-        document.addEventListener('touchstart', function() {}, {passive: true});
+        document.addEventListener('touchstart', function () { }, { passive: true });
     </script>
 </body>
 
