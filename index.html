@@ -90,6 +90,7 @@
             padding: 2rem 1rem;
             max-width: 800px;
             margin: 0 auto;
+            padding-bottom: 70px;
         }
 
         .artwork-grid {
@@ -162,18 +163,21 @@
 
         .zone-navigation {
             position: fixed;
-            bottom: 2rem;
+            bottom: 1rem;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-50%) scale(1.2);
+            /* 同時置中+放大 */
+            transform-origin: bottom center;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 25px;
-            padding: 0.5rem;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            max-width: 90vw;
+            padding: 0.6rem 0.8rem;
+            max-width: 95vw;
+            /* 避免超出螢幕 */
             overflow: hidden;
         }
 
@@ -205,12 +209,14 @@
 
         .zone-slider {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.6rem;
             overflow-x: auto;
             scroll-behavior: smooth;
-            padding: 0 0.5rem;
+            padding: 0 0.3rem;
             scrollbar-width: none;
             -ms-overflow-style: none;
+            flex: 0 0 auto;
+            width: calc(45px * 3 + 0.6rem * 3 + 1rem);
         }
 
         .zone-slider::-webkit-scrollbar {
@@ -218,14 +224,14 @@
         }
 
         .zone-btn {
-            width: 35px;
-            height: 35px;
+            width: 45px;
+            height: 45px;
             border: none;
             border-radius: 50%;
             background: white;
             color: #6c757d;
             font-weight: bold;
-            font-size: 0.8rem;
+            font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s;
             flex-shrink: 0;
@@ -412,6 +418,7 @@
         @media (max-width: 480px) {
             .content-container {
                 padding: 1rem 0.5rem;
+                padding-bottom: 50px;
             }
 
             .artwork-grid {
@@ -427,12 +434,6 @@
                 padding: 0.3rem;
             }
 
-            .zone-btn,
-            .nav-arrow {
-                width: 30px;
-                height: 30px;
-                font-size: 0.7rem;
-            }
         }
 
         /* 側邊菜單樣式 */
@@ -571,8 +572,8 @@
             font-size: 1.2rem;
             width: 24px;
             text-align: center;
-            
-            
+
+
         }
 
         .menu-text {
