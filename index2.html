@@ -206,15 +206,16 @@
         .zone-slider {
             display: flex;
             gap: 0.5rem;
-            overflow-x: auto;
+            overflow: hidden;
             scroll-behavior: smooth;
             padding: 0 0.5rem;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+            width: 180px;
         }
 
-        .zone-slider::-webkit-scrollbar {
-            display: none;
+        .zone-slider-inner {
+            display: flex;
+            gap: 0.5rem;
+            transition: transform 0.3s ease;
         }
 
         .zone-btn {
@@ -286,16 +287,14 @@
             border-bottom: 1px solid #e9ecef;
             display: flex;
             align-items: center;
-            gap: 1rem;
-            position: sticky;
             justify-content: space-between;
+            position: sticky;
             top: 0;
             background: white;
             z-index: 1001;
             height: 65px;
         }
 
-        /*new*/
         .detail-specs {
             white-space: pre-line;
             color: #808080;
@@ -396,45 +395,6 @@
             font-size: 0.8rem;
         }
 
-        @media (max-width: 480px) {
-            .detail-content {
-                padding: 1.5rem 1rem;
-            }
-
-            .detail-code {
-                top: 1rem;
-                right: 1rem;
-                font-size: 0.8rem;
-                padding: 0.4rem 0.8rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .content-container {
-                padding: 1rem 0.5rem;
-            }
-
-            .artwork-grid {
-                gap: 1rem;
-            }
-
-            .artwork-image {
-                height: 150px;
-            }
-
-            .zone-navigation {
-                bottom: 1rem;
-                padding: 0.3rem;
-            }
-
-            .zone-btn,
-            .nav-arrow {
-                width: 30px;
-                height: 30px;
-                font-size: 0.7rem;
-            }
-        }
-
         /* 側邊菜單樣式 */
         .sidebar-overlay {
             position: fixed;
@@ -459,7 +419,7 @@
             position: fixed;
             top: 0;
             right: 0;
-            width: min(320px, 70vw);
+            width: min(320px, 85vw);
             height: 100%;
             background: white;
             z-index: 201;
@@ -550,12 +510,6 @@
             transform: translateX(4px);
         }
 
-        .menu-item.active {
-            background: var(--warm-beige);
-            color: var(--accent-color);
-            font-weight: 500;
-        }
-
         .menu-item.active::before {
             content: '';
             position: absolute;
@@ -571,8 +525,6 @@
             font-size: 1.2rem;
             width: 24px;
             text-align: center;
-            
-            
         }
 
         .menu-text {
@@ -587,6 +539,58 @@
             font-size: 0.8rem;
             text-align: center;
             background: #fafafa;
+        }
+
+        @media (max-width: 480px) {
+            .content-container {
+                padding: 1rem 0.5rem;
+            }
+
+            .artwork-grid {
+                gap: 1rem;
+            }
+
+            .artwork-image {
+                height: 150px;
+            }
+
+            .zone-navigation {
+                bottom: 1rem;
+                padding: 0.3rem;
+            }
+
+            .zone-slider {
+                width: 140px;
+            }
+
+            .zone-btn,
+            .nav-arrow {
+                width: 30px;
+                height: 30px;
+                font-size: 0.7rem;
+            }
+
+            .detail-content {
+                padding: 1.5rem 1rem;
+            }
+
+            .detail-header {
+                padding: 0.8rem 1rem;
+                height: 55px;
+            }
+
+            .detail-code {
+                font-size: 0.8rem;
+                height: 35px;
+                padding: 0 1.5rem 0 1.2rem;
+                margin-right: -1rem;
+            }
+
+            .back-btn {
+                font-size: 1.1rem;
+                padding: 0.4rem;
+                height: 35px;
+            }
         }
     </style>
 </head>
@@ -618,15 +622,16 @@
         </div>
 
         <nav class="zone-navigation">
-            <button class="nav-arrow" @click="previousZone" :disabled="currentZoneIndex === 0">‹</button>
-            <div class="zone-slider" ref="zoneSlider">
-                <button v-for="(zone, index) in zones" :key="zone"
-                    :class="['zone-btn', { active: currentZone === zone }]" @click="goToZone(zone)"
-                    :ref="'zone-' + zone">
-                    {{ zone }}
-                </button>
+            <button class="nav-arrow" @click="slideLeft" :disabled="sliderOffset === 0">‹</button>
+            <div class="zone-slider">
+                <div class="zone-slider-inner" :style="{ transform: `translateX(-${sliderOffset * 40}px)` }">
+                    <button v-for="(zone, index) in zones" :key="zone"
+                        :class="['zone-btn', { active: currentZone === zone }]" @click="goToZone(zone)">
+                        {{ zone }}
+                    </button>
+                </div>
             </div>
-            <button class="nav-arrow" @click="nextZone" :disabled="currentZoneIndex === zones.length - 1">›</button>
+            <button class="nav-arrow" @click="slideRight" :disabled="sliderOffset >= maxSliderOffset">›</button>
         </nav>
 
         <!-- Sidebar -->
@@ -639,19 +644,19 @@
             <div class="sidebar-content">
                 <button class="menu-item" @click="goToHome">
                     <span class="menu-icon">
-                        <img src="images/HomeGray.png" alt="home">
+                        <img src="images/home.png" alt="home">
                     </span>
                     <span class="menu-text">主頁</span>
                 </button>
                 <button class="menu-item active" @click="goToContent">
                     <span class="menu-icon">
-                        <img src="images/PaintGray.png" alt="artwork">
+                        <img src="images/painting.png" alt="artwork">
                     </span>
                     <span class="menu-text">作品展覽</span>
                 </button>
                 <button class="menu-item" @click="goToAbout">
                     <span class="menu-icon">
-                        <img src="images/InfoGray.png" alt="about">
+                        <img src="images/info.png" alt="about">
                     </span>
                     <span class="menu-text">關於展覽</span>
                 </button>
@@ -680,7 +685,6 @@
                 <div class="detail-info">
                     <h1 class="detail-title">{{ selectedArtwork.title }}</h1>
                     <p class="detail-subtitle">{{ selectedArtwork.subtitle }}</p>
-                    <!--新增內文-->
                     <pre class="detail-specs">{{ selectedArtwork.specs }}</pre>
                 </div>
 
@@ -713,236 +717,47 @@
                         'A': 13, 'B': 20, 'C': 12, 'D': 12, 'E': 7, 'F': 7, 'G': 12, 'H': 5,
                         'I': 4, 'J': 9, 'K': 10, 'L': 4, 'M': 2, 'N': 4, 'O': 7, 'P': 3
                     },
-                    // 自訂標題映射：key `${zone}-${index}` → 標題
                     customTitles: {},
                     selectedArtwork: null,
                     sidebarOpen: false,
+                    sliderOffset: 0,
+                    visibleZonesCount: 4
                 }
             },
             computed: {
                 currentZoneIndex() {
                     return this.zones.indexOf(this.currentZone);
+                },
+                maxSliderOffset() {
+                    return Math.max(0, this.zones.length - this.visibleZonesCount);
                 }
             },
             mounted() {
                 this.loadZoneArtworks(this.currentZone);
             },
             methods: {
-                // 為每個展區生成不同的作品標題
                 generateArtworkTitle(zone, index) {
-                    const titleTemplates = {
-                        'A': ['男人男人', '女人女人', '女人女人', '女人女人', '女人女人', '男人男人', '女人女人', '男人男人', 'X !', '男人男人', '男人男人', '女人女人', '女人女人  '],
-                        'B': ['你好我是B01', '你好我是B02', '你好我是B03', '你好我是B04', '你好我是B05', '你好我是B06', '你好我是B07', '你好我是B08', '你好我是B09', '你好我是B10', '你好我是B11', '你好我是B12', '你好我是B13', '你好我是B14', '你好我是B15', '你好我是B16', '你好我是B17', '你好我是B18', '你好我是B19', '你好我是B20'],
-                        'C': ['五月歸來不見山', '諸事吉祥', '畫畫應該是什麼', '只有藍色', '一方天地', '萬象', '只緣身在此山中', '只緣身在此山中', '墨韻', '柿柿如意', '築', '窗'],
-                        'D': ['青春嶺', '采菊東籬', '讀你', '遺忘', '拾二樂(一)', '拾二樂(二)', '同趣', '藪秋', '細數落花', '雪兒', '春之祭', '秋的光影'],
-                        'E': ['赤焰', '漂流瓶', '致敬朱銘太極', '花花世界', '飛花令', '花非花'],
-                        'F': ['藍色凝視', '火鳥', '非禮勿視', '肥貓', '黑色小鴨', '依偎', 'Bonjour同路人'],
-                        'G': ['變形記', '錯寫花神', '綠焰之書', '桃紅陷阱', '風吹的願望', '玫瑰之吻', '彼時此刻', '如詩之形', '光的書寫', '夜之脈動', '人生這一味', '舞者'],
-                        'H': ['穿花裙的女人', '旅人', '聘婷', '少女', '塔羅夫人'],
-                        'I': ['明月是前身', '猜不透的我', '五福臨門', '戴耳環的少女'],
-                        'J': ['寓言者', '戀', '孤勇者', '悠然自得', '叛變', '青春風暴', '難兄難弟', '七巧喵喵', '綠野仙蹤'],
-                        'K': ['告白', '人生習作', '自槓', '渡無人', '能言善道', '點絳唇', '過於喧囂的孤獨', '得心自在', 'Les feuilles mortes', '吉象吉相'],
-                        'L': ['甜蜜蜜', '帽簷下的困惑', '一步之遙', '手風琴手未央歌'],
-                        'M': ['觀自在', '人之初'],
-                        'N': ['孤城萬仞', '遠眺富士山', '玉山', '未至之境'],
-                        'O': ['懸浮關係', '夸父追日', '團團圓圓', '凝視', '抗疫', '歸途', '一葉扁舟——致敬葛飾北齋'],
-                        'P': ['錯落的痕跡', '邊緣人', '聞天語']
-                    };
-
+                    const titleTemplates = {};
                     const zoneTemplates = titleTemplates[zone] || [`${zone}區作品`];
                     return zoneTemplates[(index - 1) % zoneTemplates.length] || `${zone}${index.toString().padStart(2, '0')}號作品`;
                 },
 
-                // 為每個展區生成不同的作品副標題
                 generateArtworkSubtitle(zone, index) {
-                    const subtitleTemplates = {
-                        'A': ['The Men Within', 'She, in Many Faces', 'She, in Many Faces', 'She, in Many Faces', 'The Men Within', 'The Men Within', 'She, in Many Faces', 'The Men Within', 'No More Nonsense', 'She, in Many Faces', 'The Men Within', 'She, in Many Faces', 'She, in Many Faces'],
-                        'B': ['書法藝術', '墨韻流淌', '筆墨精神', '字裡行間', '詩書畫意', '翰墨丹青', '行雲流水', '筆走龍蛇', '墨香書韻', '文字之美', '筆法精研', '墨色層次'],
-                        'C': ['Echoes of a Vanished Peak', 'Auspicious All Around', 'What Should Painting Be', 'Only Blue', "A World of One's Own", 'Myriad Forms', 'Where Vision F alters I', 'Where Vision F alters II', 'Ink Resonance', 'Harmony in All Things', 'Inner Foundations', 'Through the Frame'],
-                        'D': ['The Crest of Youth', 'Poem for Chrysanthemums', 'Echoes Beneath the Surface', 'Oblivion', 'Melody for Two I', 'Melody for Two II', 'One Ride, One Rhythm', 'Echoes of Autumn Grove', 'Petals in Passing', 'Cher', 'Vernal Pulse', 'Embers of Autumn',],
-                        'E': ['Blaze of Desire', 'Message Bottles', "Homage to Ju Ming's Tai Chi", 'All beings possess the Buddha-nature', 'Verses in Bloom', 'The One I Long For', 'Petals of Illusion'],
-                        'F': ['Blue Gaze', 'The Blaze of Becoming', 'Do Not Touch the Unseen', 'The Sovereign Whisker', 'The Little Black Duck', 'Wrapped in Warmth', 'Hello Kindred Spirit'],
-                        'G': ['Metamorphosis', 'The Floralia Palimpsest', 'Scripture of the Verdant Blaze', 'The Fuchsia Snare', 'Whispers Carried by the Wind', 'Sub Rosa Kiss', 'Echoes', 'The Shape of a Poem', 'Scripted in Light', 'Nocturnal Pulses', 'Dancer', 'A Taste Called Life'],
-                        'H': ['Threaded in Bloom', 'The Wayfare', 'Silken Elegance', 'Grace in Becoming', 'Madame Tarot'],
-                        'I': ['Moonlight, Once Ours', 'The Enigma Within', 'The Arrival of Auspice', 'The Girl with the Golden Hoop'],
-                        'J': ['The Fable Bearer', 'Amour', 'The Solitary Ascent', 'Leisurely Wandering', 'Rebellion', 'Tempest of Youth', 'Bound by Trials', "Tangram Cats' City", 'Tales of the Enchanted Green'],
-                        'K': ['Confession', 'Draft of a Life', 'Bet Against Myself', 'Alone Through the Depths', 'The Silver Tongue', 'Scarlet Whisper', 'In Solitude', 'Poise of the Soul', 'Autumn Leaves', 'Auspicious Elephant ＆ Graceful Omen'],
-                        'L': ['Tender Sweetness', 'Veiled in Thought', 'Por Una Cabeza', 'Endless Ballad：The Accordionist'],
-                        'M': ['Bodhisattva', 'Innocence'],
-                        'N': ['The Lone Citadel,Ten Thousand Fathoms High', 'A Distant Gaze toward Fuji', 'Jade Peak', 'Echoes of the Unreached'],
-                        'O': ['Tension in the Drift', 'The Sun-Chaser', 'Together, Always', 'Gaze in Stillness', 'Against the Pandemic', 'Homeward', 'The Leaf Adrift'],
-                        'P': ['Traces in Dissonance', 'Margins of Being', 'In the Silence Above']
-                    };
-
+                    const subtitleTemplates = {};
                     const zoneTemplates = subtitleTemplates[zone] || ['A World of One\'s Own'];
                     return zoneTemplates[(index - 1) % zoneTemplates.length] || 'A World of One\'s Own';
                 },
 
                 generateArtworkSpecs(zone, index) {
-                    const specsTemplates = {
-                        'A': [
-                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '96 X 189 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '39 X 54 cm\n壓克力顏料 / 彩色紙\n2021',
-                        ],
-                        'B': [
-                            '直徑 25 cm / 高 30 cm\n陶土 / 釉料\n2023',
-                            '20 X 20 X 15 cm\n瓷土 / 青瓷釉\n2022',
-                            '直徑 35 cm / 高 20 cm\n陶土 / 天目釉\n2023',
-                            '25 X 15 X 40 cm\n白瓷土 / 透明釉\n2022',
-                            '直徑 30 cm / 高 25 cm\n紅陶土 / 鐵釉\n2023',
-                            '18 X 12 X 35 cm\n瓷土 / 青白釉\n2022',
-                            '直徑 40 cm / 高 15 cm\n陶土 / 黑釉\n2023',
-                            '30 X 30 X 20 cm\n白土 / 結晶釉\n2022'
-                        ],
-                        'C': [
-                            '34 X 67 cm\n水彩 / 宣紙\n2015',
-                            '34 X 24 cm\n廣告顏料 / 宣紙\n2015',
-                            '35 X 34 cm\n廣告顏料 / 宣紙\n2015',
-                            '34 X 34 cm\n廣告顏料 / 宣紙\n2015.05.09',
-                            '38 X 34 cm\n廣告顏料 / 宣紙\n2014.09.09',
-                            '34 X 24 cm\n廣告顏料 / 宣紙\n2015',
-                            '68 X 34 cm\n廣告顏料 / 宣紙\n2015.06.10',
-                            '68 X 34 cm\n廣告顏料 / 宣紙\n2015.06.10',
-                            '34 X 34 cm\n廣告顏料 / 宣紙\n2015.04.15',
-                            '67 X 34 cm\n水彩 / 宣紙\n2015',
-                            '34 X 34 cm\n廣告顏料 / 宣紙\n2015.05.01',
-                            '34 X 67 cm\n水墨 / 宣紙\n2015.05.27',
-                        ],
-                        'D': [
-                            '137 X 69 cm\n壓克力顏料 / 宣紙\n2018',
-                            '33 X 67 cm\n水彩 / 宣紙\n2015.06.21',
-                            '53 X 39 cm\n廣告顏料 / 水彩紙\n2016',
-                            '53 X 39 cm\n廣告顏料 / 水彩紙\n2015',
-                            '61 X 31 cm\n水彩 / 宣紙\n2015',
-                            '61 X 31 cm\n水彩 / 宣紙\n2015',
-                            '50 X 66 cm\n壓克力顏料 / 水彩紙\n2021',
-                            '38 X 53 cm\n壓克力顏料 / 水彩紙\n2016',
-                            '30 X 62 cm\n水彩 / 宣紙\n2015',
-                            '53 X 39 cm\n廣告顏料 / 水彩紙\n2015',
-                            '55 X 40 cm\n壓克力顏料 / 水彩紙\n2018',
-                            '97 X 64 cm\n壓克力顏料 / 五彩紙\n2018',
-
-                        ],
-                        'E': [
-                            '77 X 141 cm\n壓克力顏料 / 五彩紙\n2018',
-                            '144 X 79 cm\n水彩/宣紙\n2017',
-                            '97 X 65 cm\n壓克力顏料 / 水彩紙\n2022',
-                            '65 X 97 cm\n壓克力顏料 / 五彩紙\n2018',
-                            '54 X 78 cmm\n壓克力顏料 / 瓦楞紙\n2020',
-                            '54 X 79 cm\n壓克力顏料 / 瓦楞紙\n2018',
-                            '55 X 78 cm\n壓克力顏料 / 瓦楞紙\n2022',
-                        ],
-                        'F': [
-                            '50 X 65 cm\n壓克力顏料 / 五彩紙\n2021',
-                            '98 X 65 cm\n壓克力顏料 / 五彩紙\n2021',
-                            '97 X 65 cm\n壓克力顏料 / 五彩紙\n2022',
-                            '50 X 66 cm\n壓克力顏料 / 水彩紙\n2018',
-                            '141 X 75 cm\n壓克力顏料 / 五彩紙\n2018',
-                            '49 X 78 cm\n壓克力顏料 / 楮皮紙\n2021',
-                            '78 X 143 cm\n壓克力顏料 / 雲龍紙\n2021',
-                        ],
-                        'G': [
-                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
-                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
-                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
-                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
-                            '97 X 66 cm\n廣告顏料 / 五彩紙\n2022',
-                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
-                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
-                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
-                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
-                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
-                        ],
-                        'H': [
-                            '64 X 97 cm\n壓克力顏料 / 五彩紙\n2020',
-                            '64 X 97 cm\n壓克力顏料 / 五彩紙\n2020',
-                            '64 X 97 cm\n壓克力顏料 / 五彩紙\n2020',
-                            '64 X 94 cm\n壓克力顏料 / 五彩紙\n2020',
-                            '64 X 97 cm\n壓克力顏料 / 五彩紙\n2020',
-                        ],
-                        'I': [
-                            '51 X 68 cm\n壓克力顏料 / 楮皮紙\n2020',
-                            '51 X 68 cm\n壓克力顏料 / 五彩紙\n2020',
-                            '94 X 67 cm\n壓克力顏料 / 五彩紙\n2020',
-                            '87 X 64 cm\n壓克力顏料 / 五彩紙\n2020',
-                        ],
-                        'J': [
-                            '49 X 67 cm\n壓克力顏料 / 五彩紙\n2019',
-                            '60 X 86 cm\n壓克力顏料 / 皺紋紙\n2020',
-                            '81 X 63 cm\n壓克力顏料 / 皺紋紙\n2020',
-                            '64 X 97 cm\n壓克力顏料 / 皺紋紙\n2020',
-                            '54 X 78 cm\n壓克力顏料 / 瓦楞紙\n2020',
-                            '64 X 96 cm\n壓克力顏料 / 楮皮紙\n2020',
-                            '70 X 82 cm\n壓克力顏料 / 楮皮紙\n2020',
-                            '67 X 51 cm\n壓克力顏料/水彩紙\n2021',
-                            '79 X 143 cm\n壓克力顏料 / 五彩紙\n2019',
-                        ],
-                        'K': [
-                            '54 X 79 cm\n壓克力顏料 / 瓦楞紙\n2020',
-                            '40 X 55 cm\n粉彩 / 水彩紙\n2021',
-                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '65 X 98 cm\n壓克力顏料 / 五彩紙\n2021',
-                            '78 X 94 cmm\n壓克力顏料 / 楮皮紙\n2020',
-                            '97 X 64 cm\n壓克力顏料 / 五彩紙\n2019',
-                            '60 X 87 cm\n壓克力顏料 / 皺紋紙\n2019',
-                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2021',
-                            '79 X 142 cm\n壓克力顏料 / 雲龍紙\n2021',
-                        ],
-                        'L': [
-                            '63 X 92 cm\n壓克力顏料 / 楮皮紙\n2018',
-                            '63 X 96 cm\n壓克力顏料 / 五彩紙\n2018',
-                            '63 X 96 cm\n壓克力顏料 / 五彩紙\n2018',
-                            '60 X 87 cm\n壓克力顏料 / 皺紋紙\n2019',
-                        ],
-                        'M': [
-                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
-                            '55 X 79 cm\n壓克力顏料 / 彩色紙\n2021',
-                        ],
-                        'N': [
-                            '97 X 66 cm\n壓克力顏料 / 五彩紙\n2022',
-                            '78 X 54 cm\n壓克力顏料 / 瓦楞紙\n2020',
-                            '65 X 92 cm\n壓克力顏料 / 楮皮紙\n2022',
-                            '66 X 98 cm\n廣告顏料 / 楮皮紙\n2024',
-                        ],
-                        'O': [
-                            '187 X 93 cm\n壓克力顏料\n2017',
-                            '66 X 98 cm\n壓克力顏料 / 五彩紙\n2023',
-                            '67 X 98 cm\n壓克力顏料 / 五彩紙\n2021',
-                            '51 X 66 cm\n壓克力顏料 / 楮皮紙\n2023',
-                            '66 X 50 cm\n壓克力顏料 / 水彩紙\n2021',
-                            '78 X 54 cm\n壓克力顏料 / 瓦楞紙\n2020',
-                            '72 X 54 cm\n壓克力顏料 / 瓦楞紙\n2020',
-                        ],
-                        'P': [
-                            '55 X 78 cm\n壓克力顏料 / 宣紙\n2018',
-                            '50 X 67 cm\n廣告顏料 / 水彩紙\n2021',
-                            '54 X 78 cm\n壓克力顏料 / 瓦楞紙\n2020',
-                        ]
-                    };
-
+                    const specsTemplates = {};
                     const zoneTemplates = specsTemplates[zone] || ['尺寸可變\n混合媒材\n2023'];
                     return zoneTemplates[(index - 1) % zoneTemplates.length] || '尺寸可變\n混合媒材\n2023';
                 },
 
                 generateArtwork(zone, index) {
                     const key = `${zone}-${index}`;
-
-                    // 使用自訂標題或生成的唯一標題
                     const title = this.customTitles[key] || this.generateArtworkTitle(zone, index);
                     const subtitle = this.generateArtworkSubtitle(zone, index);
-
-                    //新增
                     const specs = this.generateArtworkSpecs(zone, index);
 
                     return {
@@ -951,8 +766,6 @@
                         subtitle,
                         code: `${zone}${index.toString().padStart(2, '0')}`,
                         image: `images/${zone}/artwork${index}.jpg`,
-
-                        //new add 
                         specs
                     };
                 },
@@ -968,7 +781,6 @@
 
                         this.allZoneArtworks[zone] = artworks;
                     } else {
-                        // 如果已載入，重新同步自訂標題（避免後續修改無法反映）
                         this.allZoneArtworks[zone] = this.allZoneArtworks[zone].map((a, idx) => {
                             const key = `${zone}-${idx + 1}`;
                             return {
@@ -978,7 +790,6 @@
                         });
                     }
 
-                    // 一次性顯示該展區的所有作品
                     this.displayedArtworks = [...this.allZoneArtworks[zone]];
                 },
 
@@ -986,20 +797,28 @@
                     if (zone !== this.currentZone) {
                         this.currentZone = zone;
                         this.loadZoneArtworks(zone);
+                        
+                        // 自動調整滑動位置，確保選中的區域可見
+                        const zoneIndex = this.zones.indexOf(zone);
+                        if (zoneIndex < this.sliderOffset) {
+                            this.sliderOffset = zoneIndex;
+                        } else if (zoneIndex >= this.sliderOffset + this.visibleZonesCount) {
+                            this.sliderOffset = zoneIndex - this.visibleZonesCount + 1;
+                        }
 
-                        // 滾動到該區域按鈕的中央
-                        this.$nextTick(() => {
-                            const zoneBtn = this.$refs['zone-' + zone]?.[0];
-                            if (zoneBtn) {
-                                zoneBtn.scrollIntoView({
-                                    behavior: 'smooth',
-                                    inline: 'center'
-                                });
-                            }
-                        });
-
-                        // 滾動到頂部
                         window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                },
+
+                slideLeft() {
+                    if (this.sliderOffset > 0) {
+                        this.sliderOffset--;
+                    }
+                },
+
+                slideRight() {
+                    if (this.sliderOffset < this.maxSliderOffset) {
+                        this.sliderOffset++;
                     }
                 },
 
@@ -1019,31 +838,24 @@
 
                 selectArtwork(artwork) {
                     this.selectedArtwork = artwork;
-                    // 阻止背景滾動
                     document.body.style.overflow = 'hidden';
                 },
 
                 closeDetail() {
                     this.selectedArtwork = null;
-                    // 恢復背景滾動
                     document.body.style.overflow = 'auto';
                 },
 
                 getArtworkDescription(artwork) {
-                    const descriptions = {
-                    };
-
+                    const descriptions = {};
                     return descriptions[artwork.id] || `作品採用${artwork.title.slice(0, 2)}的創作手法，展現出獨特的藝術語言與深刻的文化內涵。通過精緻的技法處理，藝術家成功地將傳統與現代相結合，創造出既具時代感又不失經典韻味的作品。整體構圖和諧統一，色彩運用恰到好處，體現了藝術家對於美學的深刻理解與精湛技藝。作品不僅在視覺上帶來震撼，更在精神層面引發觀者的深度思考，展現了藝術作品應有的文化價值與審美意義。`;
                 },
 
                 getArtworkDescriptionEN(artwork) {
-                    const descriptionsEN = {
-                    };
-
+                    const descriptionsEN = {};
                     return descriptionsEN[artwork.id] || `This artwork employs ${artwork.title} techniques to showcase unique artistic language and profound cultural connotations. Through exquisite technical handling, the artist successfully combines tradition with modernity, creating works that are both contemporary and classically charming. The overall composition is harmonious and unified, with appropriate use of color, reflecting the artist's deep understanding of aesthetics and superb craftsmanship. The work not only brings visual impact but also triggers deep reflection on a spiritual level, demonstrating the cultural value and aesthetic significance that art should possess.`;
                 },
 
-                // 單筆設定標題
                 setTitle(zone, index, title) {
                     const key = `${zone}-${index}`;
                     this.customTitles[key] = title;
@@ -1058,7 +870,6 @@
                     }
                 },
 
-                // 批次設定某展區的標題（傳入陣列）
                 setTitlesForZone(zone, titlesArray) {
                     if (!Array.isArray(titlesArray)) return;
                     titlesArray.forEach((t, idx) => {
@@ -1076,7 +887,7 @@
 
                 goToHome() {
                     this.closeSidebar();
-                    window.location.href = 'home.html';
+                    window.location.href = 'artist.html';
                 },
 
                 goToContent() {
